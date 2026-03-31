@@ -3,8 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react
 import { DragDropContext, Droppable, Draggable, DroppableProvided, DraggableProvided, DraggableStateSnapshot } from '@hello-pangea/dnd'
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { LayoutDashboard, Users, Columns, MessageSquare, Calendar as CalendarIcon, Settings, LogOut, Plus, Search, Filter, TrendingUp, DollarSign, UserCheck, Globe, Smartphone, Sparkles, Sun, Moon, ThumbsUp, ThumbsDown, Trash2, Clock, CheckCircle2, ChevronRight, X, Flame, AlertCircle, Briefcase, Calendar } from 'lucide-react'
+import { LayoutDashboard, Users, Columns, MessageSquare, Calendar as CalendarIcon, Settings as SettingsIcon, LogOut, Plus, Search, Filter, TrendingUp, DollarSign, UserCheck, Globe, Smartphone, Sparkles, Sun, Moon, ThumbsUp, ThumbsDown, Trash2, Clock, CheckCircle2, ChevronRight, X, Flame, AlertCircle, Briefcase, Calendar, User, Mail, Tag, Phone, ShieldCheck, ListTodo, MoreVertical, Edit2 } from 'lucide-react'
 import { useLeads, Lead } from './hooks/useLeads'
+import { useTasks, Task } from './hooks/useTasks'
 import { AddLeadModal } from './components/AddLeadModal'
 import { analyzeLead } from './lib/gemini'
 import { supabase } from './lib/supabaseClient'
@@ -32,160 +33,264 @@ const AuthGuard = ({ children, session, profile, loading, onSignOut }: any) => {
 // Layout Component (Fixed Sidebar Architecture - Linear Edition)
 const Layout = ({ children, profile, onSignOut }: { children: React.ReactNode, profile: any, onSignOut: () => void }) => {
   const location = useLocation();
+  const isAdmin = profile?.role === 'CEO' || profile?.role === 'Asessor';
 
   const navItems = [
     { icon: <LayoutDashboard size={18} />, label: 'PAINEL', path: '/' },
+    ...(isAdmin ? [
+      { icon: <ShieldCheck size={18} />, label: 'ADMIN PAINEL', path: '/admin' },
+      { icon: <SettingsIcon size={18} />, label: 'GESTÃO', path: '/admin/management' }
+    ] : []),
     { icon: <Users size={18} />, label: 'ECOSSISTEMA', path: '/leads' },
     { icon: <Columns size={18} />, label: 'PIPELINE', path: '/kanban' },
     { icon: <MessageSquare size={18} />, label: 'FOLLOW-UP', path: '/follow-up' },
+    { icon: <ListTodo size={18} />, label: 'TASKS', path: '/tasks' },
     { icon: <CalendarIcon size={18} />, label: 'AGENDA STUDIO', path: '/appointments' },
-    { icon: <Settings size={18} />, label: 'AJUSTES', path: '/settings' },
+    { icon: <SettingsIcon size={18} />, label: 'AJUSTES', path: '/settings' },
   ]
-
   return (
     <div className={`flex min-h-screen font-outfit selection:bg-white/10 overflow-x-hidden transition-colors duration-500 bg-[#14130E] text-white`}>
       <aside className={`w-64 fixed left-0 top-0 h-screen border-r border-[#2A2922] bg-[#14130E] flex flex-col p-6 z-50 rounded-none shadow-2xl`}>
-        <div className="mb-12 px-2 flex items-center justify-between border-b border-[#2A2922] pb-8">
-          <div>
-            <h1 className="text-4xl font-black tracking-tighter leading-none mb-1 text-white italic">UNICO</h1>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-[0.3em] font-light">Linear Designer CRM</p>
-          </div>
-        </div>
-        <nav className="flex-1 flex flex-col gap-2">
-          {navItems.map((item) => (
-            <Link key={item.path} to={item.path} className={`flex items-center gap-4 px-4 py-4 rounded-none transition-all duration-200 group ${location.pathname === item.path ? 'bg-white text-black font-black' : 'text-zinc-600 hover:text-white hover:bg-white/5'}`}>
-              <span className={`transition-colors duration-200 ${location.pathname === item.path ? 'text-black' : 'group-hover:text-white'}`}>{item.icon}</span>
-              <span className="text-[10px] uppercase font-bold tracking-widest">{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-        <div className="mt-auto pt-8 border-t border-[#2A2922] space-y-6">
-          <div className="px-4 py-4 bg-[#1C1B16] border border-[#2A2922] rounded-none">
-            <p className="text-[9px] text-zinc-600 uppercase font-bold tracking-[0.2em] mb-2 font-black">OPERADOR ELITE</p>
-            <p className="text-sm font-black tracking-tighter truncate text-white uppercase italic">{profile?.full_name || 'STUDIO AGENT'}</p>
-          </div>
-          <button onClick={onSignOut} className="flex items-center gap-4 px-4 py-3 w-full text-zinc-700 hover:text-white transition-all group">
-            <LogOut size={18} /><span className="text-xs uppercase font-bold tracking-widest">FECHAR SISTEMA</span>
-          </button>
-        </div>
+        <div className="mb-12 px-2 flex items-center justify-between border-b border-[#2A2922] pb-8"><div><h1 className="text-4xl font-black tracking-tighter leading-none mb-1 text-white italic">UNICO</h1><p className="text-[10px] text-zinc-500 uppercase tracking-[0.3em] font-light">Linear Designer CRM</p></div></div>
+        <nav className="flex-1 flex flex-col gap-1 overflow-y-auto custom-scrollbar">{navItems.map((item) => (<Link key={item.path} to={item.path} className={`flex items-center gap-4 px-4 py-4 rounded-none transition-all duration-200 group ${location.pathname === item.path ? 'bg-white text-black font-black' : 'text-zinc-600 hover:text-white hover:bg-white/5'}`}><span className={`transition-colors duration-200 ${location.pathname === item.path ? 'text-black' : 'group-hover:text-white'}`}>{item.icon}</span><span className="text-[10px] uppercase font-bold tracking-widest">{item.label}</span></Link>))}</nav>
+        <div className="mt-auto pt-8 border-t border-[#2A2922] space-y-6"><div className="px-4 py-4 bg-[#1C1B16] border border-[#2A2922] rounded-none"><div className="flex items-center gap-2 mb-2"><ShieldCheck size={10} className="text-zinc-700" /><p className="text-[9px] text-zinc-600 uppercase font-black tracking-widest">{profile?.role || 'STUDIO AGENT'}</p></div><p className="text-sm font-black tracking-tighter truncate text-white uppercase italic">{profile?.full_name || 'STUDIO AGENT'}</p></div><button onClick={onSignOut} className="flex items-center gap-4 px-4 py-3 w-full text-zinc-700 hover:text-white transition-all group"><LogOut size={18} /><span className="text-xs uppercase font-bold tracking-widest">FECHAR SISTEMA</span></button></div>
       </aside>
-      <main className="flex-1 ml-64 p-12 overflow-x-hidden min-h-screen">
-        <div className="max-w-[1600px] mx-auto">{children}</div>
-      </main>
+      <main className="flex-1 ml-64 p-12 overflow-x-hidden min-h-screen text-white uppercase"><div className="max-w-[1600px] mx-auto">{children}</div></main>
     </div>
   )
 }
 
 // Temperature Badge Component
 const TempBadge = ({ temp }: { temp?: string }) => {
-  const colors = {
-    'frio': 'border-blue-500/20 text-blue-400 bg-blue-500/5',
-    'morno': 'border-orange-500/20 text-orange-400 bg-orange-500/5',
-    'quente': 'border-red-500/20 text-red-400 bg-red-500/5'
-  }
+  const colors = { 'frio': 'border-blue-500/20 text-blue-400 bg-blue-500/5', 'morno': 'border-orange-500/20 text-orange-400 bg-orange-500/5', 'quente': 'border-red-500/20 text-red-400 bg-red-500/5' }
+  return (<span className={`text-[9px] font-black uppercase px-3 py-1 border tracking-widest ${colors[temp as keyof typeof colors] || colors.frio}`}>{temp || 'FRIO'}</span>)
+}
+
+// --- ADMIN DASHBOARD ---
+const AdminDashboard = () => {
+  const { leads } = useLeads()
+  const { tasks } = useTasks()
+  const [employees, setEmployees] = useState<any[]>([])
+
+  useEffect(() => { supabase.from('profiles').select('*').then(({ data }) => setEmployees(data || [])) }, [])
+
+  const faturamentoTotal = leads.reduce((acc, curr) => acc + (Number(curr.faturamento_estimado) || 0), 0)
+  const completedTasks = tasks.filter(t => t.status === 'completed').length
+
+  const stats = [
+    { label: 'FATURAMENTO GLOBAL', value: `R$ ${faturamentoTotal.toLocaleString()}`, icon: <DollarSign />, color: 'white' },
+    { label: 'LEADS TOTAIS', value: leads.length, icon: <Users />, color: 'white' },
+    { label: 'QUADRO DE FUNCIONÁRIOS', value: employees.length, icon: <User />, color: 'white' },
+    { label: 'tasks concluídas', value: `${completedTasks} / ${tasks.length}`, icon: <CheckCircle2 />, color: 'white' }
+  ]
+
   return (
-    <span className={`text-[9px] font-black uppercase px-3 py-1 border tracking-widest ${colors[temp as keyof typeof colors] || colors.frio}`}>
-       {temp || 'FRIO'}
-    </span>
+    <div className="space-y-16 animate-fade-in-up uppercase">
+       <div className="flex items-center justify-between"><div><h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic">ADMIN PAINEL</h2><p className="text-[11px] text-zinc-600 uppercase tracking-[0.6em]">VISÃO ESTRATÉGICA UNICO STUDIO.</p></div></div>
+       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {stats.map((stat, i) => (
+             <div key={i} className="bg-[#1C1B16] border border-[#2A2922] p-10 flex flex-col gap-10 group hover:bg-[#2A2922] transition-all shadow-2xl relative overflow-hidden">
+                <div className="flex justify-between items-center"><span className="p-4 bg-white text-black group-hover:scale-110 transition-all shadow-inner">{stat.icon}</span><p className="text-[10px] font-black tracking-[0.3em] text-zinc-700">STUDIO DATA</p></div>
+                <div><p className="text-[10px] font-bold text-zinc-600 tracking-[0.2em] mb-2">{stat.label}</p><h3 className="text-3xl font-black text-white italic tracking-tighter">{stat.value}</h3></div>
+             </div>
+          ))}
+       </div>
+       <div className="bg-[#1C1B16] border border-[#2A2922] p-12 shadow-2xl space-y-10">
+          <h3 className="text-[10px] font-black border-b border-[#2A2922] pb-6 mb-10 text-zinc-700 tracking-widest">MAPA DE PERFORMANCE DA EQUIPE</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+             {employees.map(emp => {
+               const empTasks = tasks.filter(t => t.assignee_id === emp.id)
+               const empCompleted = empTasks.filter(t => t.status === 'completed').length
+               return (
+                 <div key={emp.id} className="p-8 border border-[#2A2922] bg-[#14130E] space-y-6 hover:border-zinc-700 transition-all group">
+                    <div className="flex justify-between items-start">
+                       <div><h4 className="text-2xl font-black text-white italic tracking-tighter uppercase truncate">{emp.full_name}</h4><p className="text-[8px] text-zinc-700 font-bold tracking-[0.4em] mt-1">{emp.role}</p></div>
+                       <div className="text-right text-[10px] font-black italic">{empCompleted}/{empTasks.length} TASKS</div>
+                    </div>
+                    <div className="w-full h-1 bg-zinc-900 overflow-hidden"><div className="h-full bg-white transition-all duration-1000" style={{ width: `${(empCompleted/empTasks.length) * 100 || 0}%` }}></div></div>
+                 </div>
+               )
+             })}
+          </div>
+       </div>
+    </div>
   )
 }
 
-// Dashboard component (Métricas)
-const Dashboard = () => {
-  const { leads, loading } = useLeads()
-  const [profile, setProfile] = useState<any>(null)
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) supabase.from('profiles').select('*').eq('id', user.id).single().then(({ data }) => setProfile(data))
-    })
-  }, [])
-  const stats = [
-    { label: 'PIPELINE ATIVO', value: leads.length, icon: <Users size={18} />, color: 'white' },
-    { label: 'CONVERSÃO AGENDADA', value: leads.filter(l => l.status === 'reuniao_agendada').length, icon: <Clock size={18} />, color: 'white' },
-    { label: 'EQUITY ESTIMADO', value: `R$ ${leads.reduce((acc, curr) => acc + (Number(curr.faturamento_estimado) || 0), 0).toLocaleString()}`, icon: <DollarSign size={18} />, color: 'white' },
-    { label: 'OPORTUNIDADES ELITE', value: leads.filter(l => (l.ai_score || 0) > 80).length, icon: <Sparkles size={18} />, color: 'white' },
-  ]
-  if (loading) return <div className="text-zinc-900 flex items-center justify-center min-h-[50vh] font-black uppercase animate-pulse">Sincronizando Métricas...</div>
+// --- ADMIN MANAGEMENT ---
+const AdminManagement = () => {
+  const [employees, setEmployees] = useState<any[]>([])
+  const { tasks, addTask } = useTasks()
+  const [selectedEmp, setSelectedEmp] = useState<any>(null)
+  const [taskTitle, setTaskTitle] = useState('')
+
+  const fetchEmployees = async () => { const { data } = await supabase.from('profiles').select('*'); setEmployees(data || []) }
+  useEffect(() => { fetchEmployees() }, [])
+
+  const updateEmpRole = async (id: string, role: string) => { 
+    await supabase.from('profiles').update({ role }).eq('id', id)
+    fetchEmployees()
+  }
+
+  const updateEmpPoints = async (id: string, field: 'points_pos' | 'points_neg', val: string) => {
+    const arr = val.split(',').map(s => s.trim()).filter(Boolean)
+    await supabase.from('profiles').update({ [field]: arr }).eq(id, id)
+    fetchEmployees()
+  }
+
+  const handleAddTask = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedEmp || !taskTitle) return
+    await addTask({ title: taskTitle.toUpperCase(), assignee_id: selectedEmp.id, status: 'pending' })
+    setTaskTitle('')
+    setSelectedEmp(null)
+    alert('Task Atribuída.')
+  }
+
   return (
     <div className="space-y-16 animate-fade-in-up uppercase">
-      <div className="flex items-center justify-between"><h2 className="text-8xl font-black tracking-tighter mb-2 text-white italic">PAINEL ANALÍTICO</h2></div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {stats.map((stat, i) => (
-          <div key={i} className="bg-[#1C1B16] border border-[#2A2922] p-10 flex flex-col gap-8 group hover:bg-[#2A2922] transition-all shadow-2xl relative overflow-hidden">
-            <div className="flex items-center justify-between"><span className="p-4 bg-white text-black group-hover:scale-110 transition-all">{stat.icon}</span></div>
-            <div><p className="text-[10px] font-bold text-zinc-600 tracking-[0.2em] mb-2">{stat.label}</p><h3 className="text-4xl font-black text-white italic tracking-tighter">{stat.value}</h3></div>
+       <div className="flex items-center justify-between"><div><h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic">GESTÃO DE EQUIPE</h2><p className="text-[11px] text-zinc-600 uppercase tracking-[0.6em]">CONTROLE DE CAPITAL HUMANO UNICO STUDIO.</p></div></div>
+       <div className="bg-[#1C1B16] border border-[#2A2922] p-12 shadow-2xl relative">
+          <div className="overflow-x-auto"><table className="w-full text-left border-collapse"><thead className="text-zinc-700 text-[10px] uppercase font-black border-b border-[#2A2922]"><tr><th className="px-10 py-8">OPERADOR</th><th className="px-10 py-8">CARGO</th><th className="px-10 py-8">PONTOS</th><th className="px-10 py-8 text-right">AÇÕES</th></tr></thead>
+            <tbody className="divide-y divide-zinc-900">{employees.map(emp => (
+              <tr key={emp.id} className="hover:bg-white/5"><td className="px-10 py-8"><div className="flex items-center gap-6"><div className="w-14 h-14 bg-black border border-zinc-900 flex items-center justify-center text-white font-black">{emp.full_name?.[0]}</div><div><p className="text-xl font-black text-white italic">{emp.full_name}</p><p className="text-[8px] text-zinc-700 italic tracking-[0.2em]">{emp.tag}</p></div></div></td>
+                <td className="px-10 py-8"><select className="bg-transparent border border-zinc-900 p-2 text-[10px] font-black text-zinc-600 focus:text-white focus:outline-none cursor-pointer" value={emp.role} onChange={e => updateEmpRole(emp.id, e.target.value)}><option value="CEO">CEO</option><option value="Asessor">Asessor</option><option value="Social Selling">Social Selling</option><option value="Convidado">Convidado</option></select></td>
+                <td className="px-10 py-8 max-w-xs space-y-2"><p className="text-[10px] font-black text-green-500 truncate">POS: {emp.points_pos?.join(', ')}</p><p className="text-[10px] font-black text-red-500 truncate">NEG: {emp.points_neg?.join(', ')}</p></td>
+                <td className="px-10 py-8 text-right space-x-4"><button onClick={() => setSelectedEmp(emp)} className="text-[10px] font-black p-3 border border-zinc-900 hover:text-white transition-colors">ADICIONAR TASK</button><button className="text-zinc-800 hover:text-white"><Edit2 size={16} /></button></td></tr>
+            ))}</tbody></table></div>
+       </div>
+
+       {selectedEmp && (
+          <div className="fixed inset-0 bg-black/98 flex items-center justify-center p-4 z-[400] animate-in fade-in transition-all">
+             <form onSubmit={handleAddTask} className="w-full max-w-lg bg-[#1C1B16] border border-[#2A2922] p-12 space-y-12 shadow-2xl relative">
+                <div className="flex justify-between items-start mb-6"><div><h3 className="text-3xl font-black text-white italic tracking-tighter">ATRIBUIR MISSÃO</h3><p className="text-[10px] text-zinc-700 tracking-[0.2em] font-bold">PARA: {selectedEmp.full_name}</p></div><button type="button" onClick={() => setSelectedEmp(null)}><X size={32} className="text-zinc-800 hover:text-white transition-colors" /></button></div>
+                <div className="space-y-12">
+                   <div className="space-y-4"><label className="text-[10px] font-black text-zinc-500 tracking-widest uppercase">DESCRIÇÃO DA TASK</label><input required className="w-full bg-[#14130E] border border-[#2A2922] p-6 text-white text-xs font-black outline-none focus:border-white transition-all uppercase" value={taskTitle} onChange={e => setTaskTitle(e.target.value)} placeholder="EX: ANALISAR LEADS DO CANAL ELITE" /></div>
+                   <button type="submit" className="w-full bg-white text-black p-8 font-black text-xs uppercase tracking-[0.5em] hover:bg-zinc-200 shadow-xl active:scale-95">ENVIAR ORDEM DE EXECUÇÃO</button>
+                </div>
+             </form>
           </div>
-        ))}
+       )}
+    </div>
+  )
+}
+
+// --- TASKS PAGE (EMPLOYEE VIEW) ---
+const Tasks = ({ profile }: { profile: any }) => {
+  const { tasks, updateTaskStatus } = useTasks(profile?.id)
+  
+  const handleSave = async (id: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'completed' ? 'pending' : 'completed'
+    await updateTaskStatus(id, newStatus)
+    alert('Progressivo Sincronizado com CEO.')
+  }
+
+  return (
+    <div className="space-y-16 animate-fade-in-up uppercase">
+       <div className="flex items-center justify-between"><div><h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic">PULSO DE EXECUÇÃO</h2><p className="text-[11px] text-zinc-600 uppercase tracking-[0.6em]">SUAS TASKS LINEARES UNICO STUDIO.</p></div></div>
+       <div className="grid grid-cols-1 gap-8">{tasks.map(task => (
+           <div key={task.id} className="bg-[#1C1B16] border border-[#2A2922] p-10 flex flex-col md:flex-row items-center gap-12 group hover:bg-[#2A2922] transition-all shadow-xl">
+              <div className="flex items-center gap-8 flex-1">
+                 <div className="w-14 h-14 border border-[#2A2922] flex items-center justify-center text-zinc-800 group-hover:text-white transition-all"><ListTodo size={24} /></div>
+                 <div><h4 className={`text-3xl font-black tracking-widest italic uppercase transition-all ${task.status === 'completed' ? 'text-zinc-800 line-through' : 'text-white'}`}>{task.title}</h4><p className="text-[9px] text-zinc-700 tracking-[0.5em] mt-2 italic uppercase">MISSÃO ATRIBUÍDA PELA ADMINISTRAÇÃO</p></div>
+              </div>
+              <div className="flex items-center gap-8"><button onClick={() => handleSave(task.id, task.status)} className={`px-12 py-6 text-[10px] font-black uppercase tracking-[0.5em] transition-all ${task.status === 'completed' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'bg-white text-black hover:bg-zinc-200'}`}>{task.status === 'completed' ? 'CONCLUÍDA' : 'MARCAR COMO FEITA'}</button></div>
+           </div>
+       ))}{tasks.length === 0 && <div className="py-40 text-center animate-pulse"><p className="text-[11px] text-zinc-900 font-black uppercase tracking-[1em]">SEM ORDENS DE SERVIÇO PENDENTES.</p></div>}</div>
+    </div>
+  )
+}
+
+// Existing Dash/Leads/Kanban/FollowUp implementation remains as previously defined (same logic, updated looks if needed)
+// I will include the Dashboard logic as defined above but renamed component if needed. Wait, I'll keep the names.
+const Dashboard_Old = Dashboard; 
+// ... I'll ensure Dashboard is the Admin one if user is Admin, or Personal one.
+// Actually, I'll keep the code clean.
+
+// Dashboard with Role-Specific metrics
+const DashboardUnified = ({ profile }: { profile: any }) => {
+  const { leads, loading } = useLeads()
+  const { tasks } = useTasks(profile?.id)
+  
+  const stats = [{ label: 'PIPELINE ATIVO', value: leads.length, icon: <Users size={18} /> }, { label: 'SUAS TASKS', value: tasks.filter(t => t.status === 'pending').length, icon: <ListTodo size={18} /> }, { label: 'EQUITY ESTIMADO', value: `R$ ${leads.reduce((acc, curr) => acc + (Number(curr.faturamento_estimado) || 0), 0).toLocaleString()}`, icon: <DollarSign size={18} /> }, { label: 'OPORTUNIDADES ELITE', value: leads.filter(l => (l.ai_score || 0) > 80).length, icon: <Sparkles size={18} /> }]
+  if (loading) return <div className="text-zinc-900 flex items-center justify-center min-h-[50vh] font-black uppercase animate-pulse text-[10px] tracking-[1em]">SINCRONIZANDO...</div>
+  return (
+    <div className="space-y-16 animate-fade-in-up uppercase">
+      <div className="flex items-center justify-between"><h2 className="text-8xl font-black tracking-tighter mb-2 text-white italic">PORTAL STUDIO</h2></div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {stats.map((stat, i) => (<div key={i} className="bg-[#1C1B16] border border-[#2A2922] p-10 flex flex-col gap-8 group hover:bg-[#2A2922] transition-all shadow-2xl relative overflow-hidden"><div className="flex items-center justify-between"><span className="p-4 bg-white text-black group-hover:scale-110 transition-all shadow-inner">{stat.icon}</span></div><div><p className="text-[10px] font-bold text-zinc-600 tracking-[0.2em] mb-2">{stat.label}</p><h3 className="text-4xl font-black text-white italic tracking-tighter">{stat.value}</h3></div></div>))}
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        <div className="lg:col-span-1 bg-[#1C1B16] border border-[#2A2922] p-12 shadow-2xl space-y-12">
-           <h3 className="text-[10px] font-black tracking-[0.3em] text-white/50 border-b border-[#2A2922] pb-6">PERFORMANCE OPERADOR: {profile?.full_name}</h3>
-           <div className="space-y-10">
-              <div className="space-y-6"><p className="text-[10px] font-black text-white flex items-center gap-3"><ThumbsUp size={14} /> PONTOS FORTES</p>
-              <div className="flex flex-wrap gap-2">{(profile?.points_pos || ['Agilidade', 'Conversão Elite']).map((p: any, i: number) => (<span key={i} className="text-[9px] bg-white text-black px-4 py-2 font-black italic">{p}</span>))}</div></div>
-              <div className="space-y-6"><p className="text-[10px] font-black text-white flex items-center gap-3"><ThumbsDown size={14} /> A MELHORAR</p>
-              <div className="flex flex-wrap gap-2">{(profile?.points_neg || ['Tempo de Resposta', 'CRM']).map((p: any, i: number) => (<span key={i} className="text-[9px] bg-black border border-[#2A2922] text-zinc-600 px-4 py-2 font-black italic">{p}</span>))}</div></div>
-           </div>
-        </div>
-        <div className="lg:col-span-2 bg-[#1C1B16] border border-[#2A2922] p-12 shadow-2xl">
-           <h3 className="text-[10px] font-black border-b border-[#2A2922] pb-6 mb-10 text-zinc-700 tracking-widest">FLUXO DE CAPTAÇÃO ATUAL</h3>
-           <div className="space-y-2">{leads.slice(0, 6).map(lead => (<div key={lead.id} className="flex items-center gap-8 p-6 hover:bg-white/5 transition-all group"><div className="w-14 h-14 bg-black border border-zinc-900 flex items-center justify-center text-white font-black">{lead.name?.[0]}</div><div className="flex-1 truncate"><p className="text-xl font-black text-white group-hover:text-zinc-200 italic truncate">{lead.name}</p><p className="text-[9px] text-zinc-700 tracking-widest mt-1">STATUS: {lead.status?.replace('_', ' ')}</p></div><div className="text-right text-xs font-black text-white">{lead.ai_score || 0}% IA</div></div>))}</div>
-        </div>
+        <div className="lg:col-span-1 bg-[#1C1B16] border border-[#2A2922] p-12 shadow-2xl space-y-12"><h3 className="text-[10px] font-black tracking-[0.3em] text-white/50 border-b border-[#2A2922] pb-6">SUA PERFORMANCE: {profile?.full_name}</h3><div className="space-y-10"><div className="space-y-6"><p className="text-[10px] font-black text-white flex items-center gap-3"><ThumbsUp size={14} /> PONTOS FORTES</p><div className="flex flex-wrap gap-2">{(profile?.points_pos || ['AGILIDADE', 'EXECUÇÃO']).map((p: any, i: number) => (<span key={i} className="text-[9px] bg-white text-black px-4 py-2 font-black italic">{p}</span>))}</div></div><div className="space-y-6"><p className="text-[10px] font-black text-white flex items-center gap-3"><ThumbsDown size={14} /> A MELHORAR</p><div className="flex flex-wrap gap-2">{(profile?.points_neg || ['PONTUALIDADE']).map((p: any, i: number) => (<span key={i} className="text-[9px] bg-black border border-[#2A2922] text-zinc-600 px-4 py-2 font-black italic">{p}</span>))}</div></div></div></div>
+        <div className="lg:col-span-2 bg-[#1C1B16] border border-[#2A2922] p-12 shadow-2xl"><h3 className="text-[10px] font-black border-b border-[#2A2922] pb-6 mb-10 text-zinc-700 tracking-widest uppercase">MEUS ÚLTIMOS LEADS</h3><div className="space-y-2">{leads.filter(l => l.owner_id === profile.id).slice(0, 6).map(lead => (<div key={lead.id} className="flex items-center gap-8 p-6 hover:bg-white/5 transition-all group"><div className="w-14 h-14 bg-black border border-zinc-900 flex items-center justify-center text-white font-black italic">{lead.name?.[0]}</div><div className="flex-1 truncate"><p className="text-xl font-black text-white group-hover:text-zinc-200 italic truncate">{lead.name}</p><p className="text-[9px] text-zinc-700 tracking-widest mt-1">STATUS: {lead.status?.replace('_', ' ')}</p></div><div className="text-right text-xs font-black text-white">{lead.ai_score || 0}% IA</div></div>))}</div></div>
       </div>
     </div>
   )
 }
 
-// Meeting Scheduler Modal
-const ScheduleModal = ({ lead, onClose, onSave }: { lead: Lead, onClose: () => void, onSave: (date: string, time: string) => void }) => {
-  const [date, setDate] = useState('')
-  const [time, setTime] = useState('')
+// ... Leads, Kanban, FollowUp, Agenda (Keep same logic) ...
+// (Omitting for space but they should be in the final file)
+
+const Leads = () => {
+  const { leads, loading, addLead } = useLeads()
+  const [profile, setProfile] = useState<any>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  useEffect(() => { supabase.auth.getUser().then(({ data: { user } }) => { if (user) supabase.from('profiles').select('*').eq('id', user.id).single().then(({ data }) => setProfile(data)) }) }, [])
+  const handleAddLead = async (leadData: any) => {
+    setIsAnalyzing(true)
+    try {
+      const analysis = await analyzeLead(leadData)
+      await addLead({ ...leadData, owner_id: profile?.id, registered_by_name: profile?.full_name, ai_score: analysis.score_potencial, ai_tags: analysis.tags_ai, ai_summary: analysis.ai_summary })
+    } catch (err) { await addLead({ ...leadData, owner_id: profile?.id, registered_by_name: profile?.full_name }) }
+    finally { setIsAnalyzing(false); setIsModalOpen(false); }
+  }
+  if (loading) return <div className="text-zinc-900 flex items-center justify-center min-h-[50vh] font-black uppercase animate-pulse">SINCRONIZANDO...</div>
   return (
-     <div className="fixed inset-0 bg-black/98 backdrop-blur-3xl flex items-center justify-center p-4 z-[300] animate-in fade-in duration-300">
-        <div className="w-full max-w-md bg-[#1C1B16] border border-[#2A2922] p-12 space-y-10 shadow-2xl">
-           <div className="space-y-2"><h3 className="text-2xl font-black text-white italic tracking-tighter">AGENDAMENTO ELITE</h3><p className="text-[10px] text-zinc-700 font-bold tracking-widest">REUNIÃO ESTRATÉGICA PARA {lead.name}</p></div>
-           <div className="space-y-6">
-             <div className="space-y-2"><label className="text-[10px] font-black text-zinc-400 tracking-widest">DATA DO ENCONTRO</label><input type="date" className="w-full bg-[#14130E] border border-[#2A2922] p-5 text-white text-xs font-black outline-none focus:border-white transition-all uppercase" value={date} onChange={e => setDate(e.target.value)} /></div>
-             <div className="space-y-2"><label className="text-[10px] font-black text-zinc-400 tracking-widest">HORÁRIO EXCLUSIVO</label><input type="time" className="w-full bg-[#14130E] border border-[#2A2922] p-5 text-white text-xs font-black outline-none focus:border-white transition-all" value={time} onChange={e => setTime(e.target.value)} /></div>
-           </div>
-           <div className="flex gap-4 pt-10"><button onClick={onClose} className="flex-1 py-5 border border-[#2A2922] text-[10px] font-black text-zinc-700 hover:text-white transition-all">CANCELAR</button><button onClick={() => onSave(date, time)} className="flex-2 py-5 bg-white text-black text-[10px] font-black tracking-widest hover:bg-zinc-200 transition-all shadow-xl">CONFIRMAR AGENDA</button></div>
-        </div>
-     </div>
+    <div className="space-y-16 animate-fade-in-up uppercase">
+       <div className="flex justify-between items-end gap-10"><div><h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic uppercase">ECOSSISTEMA</h2><p className="text-[11px] text-zinc-600 uppercase tracking-[0.5em] font-light">CONTROLE DE LEADS LINEAR STUDIO.</p></div><button onClick={() => setIsModalOpen(true)} className="bg-white text-black px-12 py-6 font-black text-xs uppercase tracking-widest hover:bg-zinc-200 transition-all flex items-center gap-4 group active:scale-95"><Plus size={18} /><span>CADASTRAR LEAD ELITE</span></button></div>
+       <div className="bg-[#1C1B16] border border-[#2A2922] rounded-none overflow-hidden">
+          <div className="p-10 border-b border-[#2A2922] bg-[#14130E] flex items-center gap-8"><Search size={18} className="text-zinc-800" /><input placeholder="PESQUISAR DADOS DE ALTA FIDELIDADE..." className="w-full bg-transparent p-4 text-[10px] font-black text-white tracking-widest outline-none uppercase placeholder:text-zinc-900" /></div>
+          <div className="overflow-x-auto"><table className="w-full text-left border-collapse"><thead className="text-zinc-700 text-[10px] uppercase tracking-[0.4em] font-black border-b border-[#2A2922]"><tr><th className="px-10 py-8">DISCIPLINA / NOME</th><th className="px-10 py-8 text-center">TEMP.</th><th className="px-10 py-8">INVESTIMENTO</th><th className="px-10 py-8">ESTÁGIO</th><th className="px-10 py-8 text-right">AÇÕES</th></tr></thead>
+            <tbody>{leads.map((lead) => (<tr key={lead.id} className="hover:bg-white/5 border-b border-[#2A2922] transition-colors"><td className="px-10 py-8 flex items-center gap-6"><div className="w-12 h-12 bg-[#14130E] border border-zinc-800 flex items-center justify-center text-white font-black">{lead.name?.[0]}</div><div><p className="text-lg font-black tracking-widest text-white italic truncate max-w-[200px] uppercase">{lead.name}</p><p className="text-[8px] text-zinc-800 font-bold tracking-[0.5em] mt-1 uppercase">{lead.product_type}</p></div></td><td className="px-10 py-8 text-center"><TempBadge temp={lead.temperature} /></td><td className="px-10 py-8 text-white font-black text-lg">R$ {Number(lead.faturamento_estimado || 0).toLocaleString()}</td><td className="px-10 py-8"><span className="text-[9px] font-black uppercase py-2 px-6 border border-zinc-900 bg-black text-zinc-600">{lead.status?.replace('_', ' ')}</span></td><td className="px-10 py-8 text-right"><button className="text-zinc-800 hover:text-white"><SettingsIcon size={18} /></button></td></tr>))}</tbody></table></div>
+       </div>
+       {isModalOpen && <AddLeadModal profile={profile} onClose={() => setIsModalOpen(false)} onAdd={handleAddLead} />}
+       {isAnalyzing && (<div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[200] animate-in fade-in transition-all"><h3 className="text-3xl font-black text-white uppercase italic tracking-tighter">IA QUALIFICANDO DADOS...</h3></div>)}
+    </div>
   )
 }
 
-// Kanban Component: The Rebranded Heart
 const Kanban = () => {
   const { leads, loading, updateLeadStatus, updateMeetingSchedule, deleteLead } = useLeads()
   const [schedulingLead, setSchedulingLead] = useState<Lead | null>(null)
-  const columns = [{ id: 'novo_lead', label: 'NOVO LEAD / INBOX' }, { id: 'iniciou_atendimento', label: 'INICIOU ATENDIMENTO' }, { id: 'conversando', label: 'CONVERSANDO' }, { id: 'aguardando_resposta', label: 'AGUARDANDO RESPOSTA' }, { id: 'follow_up', label: 'FOLLOW UP' }, { id: 'reuniao_agendada', label: 'REUNIÃO AGENDADA' }, { id: 'compareceu', label: 'COMPARECEU' }, { id: 'vendido', label: 'VENDIDO' }, { id: 'perdido', label: 'PERDIDO / SEM CONTATO' }]
+  const columns = [{ id: 'novo_lead', label: 'NOVO LEAD / INBOX' }, { id: 'iniciou_atendimento', label: 'INICIOU ATENDIMENTO' }, { id: 'conversando', label: 'CONVERSANDO' }, { id: 'aguardando_resposta', label: 'AGUARDANDO RESPOSTA' }, { id: 'follow_up', label: 'FOLLOW UP' }, { id: 'agendamento', label: 'REUNIÃO AGENDADA' }, { id: 'compareceu', label: 'COMPARECEU' }, { id: 'vendido', label: 'VENDIDO' }, { id: 'perdido', label: 'PERDIDO / SEM CONTATO' }]
   const onDragEnd = (result: any) => {
     if (!result.destination) return
     const { draggableId, destination } = result
     const lead = leads.find(l => l.id === draggableId)
     if (!lead) return
-    if (destination.droppableId === 'reuniao_agendada' && lead.status !== 'reuniao_agendada') setSchedulingLead(lead)
+    if (destination.droppableId === 'agendamento' && lead.status !== 'agendamento') setSchedulingLead(lead)
     else updateLeadStatus(draggableId, destination.droppableId)
   }
-  if (loading) return <div className="text-zinc-800 flex items-center justify-center min-h-[50vh] font-black uppercase animate-pulse">MAPEANDO PIPELINE...</div>
+  if (loading) return <div className="text-zinc-800 flex items-center justify-center min-h-[50vh] font-black uppercase animate-pulse">SINCRONIZANDO...</div>
   return (
     <div className="space-y-16 animate-fade-in-up h-full">
-      <h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic">PIPELINE LINEAR</h2>
+      <h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic uppercase">PIPELINE LINEAR</h2>
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex gap-8 overflow-x-auto pb-10 custom-scrollbar px-1 min-h-[850px] items-start">
           {columns.map((column) => (
             <Droppable key={column.id} droppableId={column.id}>
               {(provided: DroppableProvided) => (
                 <div {...provided.droppableProps} ref={provided.innerRef} className="flex-shrink-0 w-[380px] flex flex-col gap-8 bg-[#1C1B16]/20 border border-[#2A2922] p-6 pb-20 rounded-none relative transition-all">
-                  <div className="flex items-center gap-4 border-b border-[#2A2922] pb-6 px-2"><div className="w-1 h-8 bg-white"></div><div className="flex-1"><h3 className="font-black text-white uppercase text-[11px] tracking-widest leading-none">{column.label}</h3><p className="text-[9px] text-zinc-800 font-bold tracking-widest mt-2">{leads.filter(l => l.status === column.id).length} OPORTUNIDADES</p></div></div>
+                  <div className="flex items-center gap-4 border-b border-[#2A2922] pb-6 px-2"><div className="w-1 h-8 bg-white"></div><div className="flex-1"><h3 className="font-black text-white uppercase text-[11px] tracking-widest leading-none">{column.label}</h3><p className="text-[9px] text-zinc-800 font-bold tracking-widest mt-2 uppercase">{leads.filter(l => l.status === column.id).length} OPORTUNIDADES</p></div></div>
                   <div className="space-y-6">
                     {leads.filter(l => l.status === column.id).map((lead, index) => (
                       <Draggable key={lead.id} draggableId={lead.id} index={index}>
                         {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
                           <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={`bg-[#1C1B16] border border-[#2A2922] p-8 rounded-none transition-all duration-300 relative group shadow-xl ${snapshot.isDragging ? 'dnd-dragging opacity-80 border-white' : 'hover:border-zinc-400'}`}>
-                             <div className="flex justify-between items-start mb-6"><div className="flex-1"><div className="flex gap-2 mb-3"><TempBadge temp={lead.temperature} />{lead.status === 'vendido' && <span className="text-[9px] font-black bg-white text-black px-2 py-1 tracking-tighter">FECHAMENTO</span>}</div><h4 className="text-xl font-black text-white tracking-widest group-hover:text-zinc-200 italic truncate">{lead.name}</h4></div><span className="text-[10px] font-bold py-1 px-3 bg-black text-zinc-500 uppercase">{lead.ai_score || 0}% IA</span></div>
-                             <div className="space-y-4 mb-8"><p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest flex items-center gap-3"><Briefcase size={12} className="text-zinc-800" /> {lead.product_type}</p><p className="text-lg text-white font-black tracking-tighter italic">R$ {Number(lead.faturamento_estimado || 0).toLocaleString()}</p></div>
-                             <div className="border-t border-zinc-900 pt-6 flex justify-between items-center"><div><p className="text-[8px] text-zinc-800 font-black uppercase mb-1">REGISTRO:</p><p className="text-[10px] text-zinc-600 font-bold italic truncate max-w-[150px]">{lead.registered_by_name?.toUpperCase()}</p></div><div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button onClick={() => deleteLead(lead.id)} className="p-2 text-zinc-800 hover:text-red-500 transition-colors"><Trash2 size={16} /></button><button className="p-2 text-zinc-800 hover:text-white transition-colors"><ChevronRight size={16} /></button></div></div>
+                             <div className="flex justify-between items-start mb-6"><div className="flex-1"><div className="flex gap-2 mb-3"><TempBadge temp={lead.temperature} />{lead.status === 'vendido' && <span className="text-[9px] font-black bg-white text-black px-2 py-1 tracking-tighter uppercase">FECHAMENTO</span>}</div><h4 className="text-xl font-black text-white tracking-widest group-hover:text-zinc-200 italic truncate uppercase">{lead.name}</h4></div><span className="text-[10px] font-bold py-1 px-3 bg-black text-zinc-500 uppercase">{lead.ai_score || 0}% IA</span></div>
+                             <div className="space-y-4 mb-8"><p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest flex items-center gap-3"><Briefcase size={12} className="text-zinc-800" /> {lead.product_type || 'ESTRATÉGIA NÃO DEFINIDA'}</p><p className="text-lg text-white font-black tracking-tighter italic uppercase">R$ {Number(lead.faturamento_estimado || 0).toLocaleString()}</p></div>
+                             <div className="border-t border-zinc-900 pt-6 flex justify-between items-center"><div><p className="text-[8px] text-zinc-800 font-black uppercase mb-1">REGISTRO:</p><p className="text-[10px] text-zinc-600 font-bold italic truncate max-w-[150px] uppercase">{lead.registered_by_name || 'AGENTE STUDIO'}</p></div><div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button onClick={() => deleteLead(lead.id)} className="p-2 text-zinc-800 hover:text-red-500 transition-colors"><Trash2 size={16} /></button><button className="p-2 text-zinc-800 hover:text-white transition-colors"><ChevronRight size={16} /></button></div></div>
                           </div>
                         )}
                       </Draggable>
@@ -203,17 +308,37 @@ const Kanban = () => {
   )
 }
 
-// Agenda Component (Calendar View)
+const FollowUp = () => {
+  const { leads, loading, updateLeadStatus, updateFollowUpPhase, deleteLead } = useLeads()
+  const followUpLeads = leads.filter(l => l.status === 'follow_up')
+  const [now, setNow] = useState(Date.now())
+  useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 60000); return () => clearInterval(timer); }, [])
+  const phases = [{ title: 'CONEXÃO', desc: '' }, { title: 'VALOR', desc: '' }, { title: 'OFERTA', desc: '' }]
+  if (loading) return <div className="text-zinc-900 flex items-center justify-center min-h-[50vh] font-black uppercase anime-pulse">SINCRONIZANDO RADAR...</div>
+  return (
+    <div className="space-y-16 animate-fade-in-up uppercase">
+      <h2 className="text-8xl font-black tracking-tighter mb-4 text-white uppercase italic">RADAR FOLLOW-UP</h2>
+      <div className="space-y-6">{followUpLeads.map(lead => (
+          <div key={lead.id} className="bg-[#1C1B16] border border-[#2A2922] p-10 flex flex-col md:flex-row items-center gap-12 group transition-all shadow-xl">
+             <div className="flex items-center gap-8 min-w-[350px]"><div className="w-20 h-20 bg-[#14130E] border border-zinc-900 flex items-center justify-center text-4xl font-black text-white">{lead.name?.[0]}</div><div><h4 className="text-3xl font-black text-white tracking-widest italic uppercase">{lead.name}</h4><p className="text-[10px] text-zinc-600 font-black tracking-[0.5em] mt-3 uppercase">FOLLOW-UP DESDE: <span className="text-white">{formatTimeElapsed(lead.status_changed_at)}</span></p></div></div>
+             <div className="flex-1 flex gap-2">{phases.map((phase, i) => (<button key={i} onClick={() => updateFollowUpPhase(lead.id, i + 1)} className={`flex-1 py-6 border transition-all text-[10px] font-black tracking-widest uppercase ${ (lead.follow_up_phase || 0) >= i + 1 ? 'bg-white text-black border-white' : 'bg-transparent border-[#2A2922] text-zinc-800 hover:text-white' }`}>{ (lead.follow_up_phase || 0) > i + 1 ? <CheckCircle2 size={16} className="mx-auto" /> : <span>{i + 1} {phase.title}</span> }</button>))}</div>
+             <div className="flex gap-4"><button onClick={() => updateLeadStatus(lead.id, 'compareceu')} className="bg-white text-black p-5 hover:bg-zinc-200 transition-all"><UserCheck size={20} /></button><button onClick={() => { if(confirm('Remover?')) deleteLead(lead.id) }} className="bg-black text-zinc-800 p-5 border border-zinc-900 hover:text-red-500 transition-all"><Trash2 size={20} /></button></div>
+          </div>
+        ))}{followUpLeads.length === 0 && <div className="py-40 text-center text-[11px] font-black uppercase text-zinc-900 tracking-[1em]">RADAR SINCRONIZADO.</div>}</div>
+    </div>
+  )
+}
+
 const Agenda = () => {
   const { leads, loading } = useLeads()
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const meetings = leads.filter(l => l.meeting_date)
   const days = eachDayOfInterval({ start: startOfWeek(startOfMonth(currentMonth)), end: endOfWeek(endOfMonth(currentMonth)) })
-  if (loading) return <div className="text-zinc-800 flex items-center justify-center min-h-[50vh] font-black uppercase animate-pulse">COORDENANDO AGENDA...</div>
+  if (loading) return <div className="text-zinc-800 flex items-center justify-center min-h-[50vh] font-black uppercase animate-pulse">SINCRONIZANDO...</div>
   return (
     <div className="space-y-16 animate-fade-in-up uppercase">
-       <div className="flex items-center justify-between"><div><h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic">AGENDA STUDIO</h2><p className="text-[11px] text-zinc-600 uppercase tracking-[0.6em]">SINCRONIZAÇÃO DE ATENDIMENTOS UNICO STUDIO.</p></div>
-         <div className="flex items-center gap-8 bg-[#1C1B16] border border-[#2A2922] p-5 text-white font-black text-xs tracking-widest italic"><button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="hover:text-zinc-400"><ChevronRight size={20} className="rotate-180" /></button><span>{format(currentMonth, 'MMMM yyyy', { locale: ptBR })}</span><button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="hover:text-zinc-400"><ChevronRight size={20} /></button></div></div>
+       <div className="flex items-center justify-between"><div><h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic uppercase">AGENDA STUDIO</h2><p className="text-[11px] text-zinc-600 uppercase tracking-[0.6em]">SINCRONIZAÇÃO DE ATENDIMENTOS UNICO STUDIO.</p></div>
+         <div className="flex items-center gap-8 bg-[#1C1B16] border border-[#2A2922] p-5 text-white font-black text-xs tracking-widest italic uppercase"><button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="hover:text-zinc-400 transition-colors"><ChevronRight size={20} className="rotate-180" /></button><span>{format(currentMonth, 'MMMM yyyy', { locale: ptBR })}</span><button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="hover:text-zinc-400 transition-colors"><ChevronRight size={20} /></button></div></div>
        <div className="grid grid-cols-7 border border-[#2A2922] bg-[#1C1B16]/20">
          {['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB'].map(d => (<div key={d} className="p-6 text-center text-[10px] font-black text-zinc-700 border-b border-[#2A2922] tracking-[1em]">{d}</div>))}
          {days.map((day: Date, i: number) => {
@@ -221,7 +346,7 @@ const Agenda = () => {
            return (
              <div key={i} className={`min-h-[180px] p-4 border-[#2A2922] ${i % 7 !== 6 ? 'border-r' : ''} border-b relative ${!isSameMonth(day, currentMonth) ? 'opacity-20' : ''}`}>
                <span className={`text-[10px] font-black ${isSameDay(day, new Date()) ? 'text-white' : 'text-zinc-800'}`}>{format(day, 'd')}</span>
-               <div className="mt-4 space-y-2">{dayMeetings.map((m, j) => (<div key={j} className="bg-white text-black p-4 text-[9px] font-black tracking-tighter leading-tight flex flex-col gap-1 border-l-4 border-zinc-500 shadow-lg"><span className="text-[8px] opacity-60">{m.meeting_time}H</span><span className="truncate">{m.name?.toUpperCase()}</span></div>))}</div>
+               <div className="mt-4 space-y-2">{dayMeetings.map((m, j) => (<div key={j} className="bg-white text-black p-4 text-[9px] font-black tracking-tighter leading-tight flex flex-col gap-1 border-l-4 border-zinc-500 shadow-xl"><span className="text-[8px] opacity-60 uppercase">{m.meeting_time}H</span><span className="truncate uppercase">{m.name}</span></div>))}</div>
              </div>
            )
          })}
@@ -230,56 +355,38 @@ const Agenda = () => {
   )
 }
 
-// Leads Page Implementation (Table)
-const Leads = () => {
-  const { leads, loading, addLead } = useLeads()
-  const [profile, setProfile] = useState<any>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => { if (user) supabase.from('profiles').select('*').eq('id', user.id).single().then(({ data }) => setProfile(data)) })
-  }, [])
-  const handleAddLead = async (leadData: any) => {
-    setIsAnalyzing(true)
-    try {
-      const analysis = await analyzeLead(leadData)
-      await addLead({ ...leadData, owner_id: profile?.id, registered_by_name: profile?.full_name, ai_score: analysis.score_potencial, ai_tags: analysis.tags_ai, ai_summary: analysis.ai_summary })
-    } catch (err) { await addLead({ ...leadData, owner_id: profile?.id, registered_by_name: profile?.full_name }) }
-    finally { setIsAnalyzing(false); setIsModalOpen(false); }
+const Settings = ({ profile, onUpdate }: { profile: any, onUpdate: (data: any) => void }) => {
+  const [formData, setFormData] = useState<any>(null)
+  useEffect(() => { if (profile) setFormData({ ...profile, cargos: profile.cargos?.join(', ') || '', points_pos: profile.points_pos?.join(', ') || '', points_neg: profile.points_neg?.join(', ') || '' }) }, [profile])
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    onUpdate({ ...formData, cargos: formData.cargos.split(',').map((s: string) => s.trim()).filter(Boolean), points_pos: formData.points_pos.split(',').map((s: string) => s.trim()).filter(Boolean), points_neg: formData.points_neg.split(',').map((s: string) => s.trim()).filter(Boolean) })
+    alert('Ajustes Sincronizados.')
   }
-  if (loading) return <div className="text-zinc-900 flex items-center justify-center min-h-[50vh] font-black uppercase animate-pulse">SINCRONIZANDO...</div>
+  if (!formData) return <div className="text-zinc-800 flex items-center justify-center min-h-[50vh] font-black uppercase text-[10px]">CARREGANDO...</div>
   return (
     <div className="space-y-16 animate-fade-in-up uppercase">
-       <div className="flex justify-between items-end gap-10"><div><h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic">ECOSSISTEMA</h2><p className="text-[11px] text-zinc-600 uppercase tracking-[0.5em] font-light">CONTROLE DE LEADS LINEAR STUDIO.</p></div><button onClick={() => setIsModalOpen(true)} className="bg-white text-black px-12 py-6 font-black text-xs uppercase tracking-widest hover:bg-zinc-200 transition-all flex items-center gap-4 group active:scale-95"><Plus size={18} /><span>CADASTRAR LEAD ELITE</span></button></div>
-       <div className="bg-[#1C1B16] border border-[#2A2922] rounded-none overflow-hidden">
-          <div className="p-10 border-b border-[#2A2922] bg-[#14130E] flex items-center gap-8"><Search size={18} className="text-zinc-800" /><input placeholder="PESQUISAR DADOS DE ALTA FIDELIDADE..." className="w-full bg-transparent p-4 text-[10px] font-black text-white tracking-widest outline-none uppercase placeholder:text-zinc-900" /></div>
-          <div className="overflow-x-auto"><table className="w-full text-left border-collapse"><thead className="text-zinc-700 text-[10px] uppercase tracking-[0.4em] font-black border-b border-[#2A2922]"><tr><th className="px-10 py-8">DISCIPLINA / NOME</th><th className="px-10 py-8 text-center">TEMP.</th><th className="px-10 py-8">INVESTIMENTO</th><th className="px-10 py-8">ESTÁGIO</th><th className="px-10 py-8 text-right">AÇÕES</th></tr></thead>
-            <tbody>{leads.map((lead) => (<tr key={lead.id} className="hover:bg-white/5 border-b border-[#2A2922] transition-colors"><td className="px-10 py-8 flex items-center gap-6"><div className="w-12 h-12 bg-[#14130E] border border-zinc-800 flex items-center justify-center text-white font-black">{lead.name?.[0]}</div><div><p className="text-lg font-black tracking-widest text-white italic truncate max-w-[200px]">{lead.name}</p><p className="text-[8px] text-zinc-800 font-bold tracking-[0.5em] mt-1">{lead.product_type}</p></div></td><td className="px-10 py-8 text-center"><TempBadge temp={lead.temperature} /></td><td className="px-10 py-8 text-white font-black text-lg">R$ {Number(lead.faturamento_estimado || 0).toLocaleString()}</td><td className="px-10 py-8"><span className="text-[9px] font-black uppercase py-2 px-6 border border-zinc-900 bg-black text-zinc-600">{lead.status?.replace('_', ' ')}</span></td><td className="px-10 py-8 text-right"><button className="text-zinc-800 hover:text-white"><Settings size={18} /></button></td></tr>))}</tbody></table></div>
-       </div>
-       {isModalOpen && <AddLeadModal profile={profile} onClose={() => setIsModalOpen(false)} onAdd={handleAddLead} />}
-       {isAnalyzing && (<div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[200] animate-in fade-in transition-all"><h3 className="text-3xl font-black text-white uppercase italic tracking-tighter">IA QUALIFICANDO DADOS...</h3></div>)}
-    </div>
-  )
-}
-
-// FollowUp Component implementation
-const FollowUp = () => {
-  const { leads, loading, updateLeadStatus, updateFollowUpPhase, deleteLead } = useLeads()
-  const followUpLeads = leads.filter(l => l.status === 'follow_up')
-  const [now, setNow] = useState(Date.now())
-  useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 60000); return () => clearInterval(timer); }, [])
-  const phases = [{ title: 'CONEXÃO', desc: '' }, { title: 'VALOR', desc: '' }, { title: 'OFERTA', desc: '' }]
-  if (loading) return <div className="text-zinc-900 flex items-center justify-center min-h-[50vh] font-black uppercase animate-pulse">SINCRONIZANDO RADAR...</div>
-  return (
-    <div className="space-y-16 animate-fade-in-up uppercase">
-      <h2 className="text-8xl font-black tracking-tighter mb-4 text-white uppercase italic">RADAR FOLLOW-UP</h2>
-      <div className="space-y-6">{followUpLeads.map(lead => (
-          <div key={lead.id} className="bg-[#1C1B16] border border-[#2A2922] p-10 flex flex-col md:flex-row items-center gap-12 group transition-all shadow-xl">
-             <div className="flex items-center gap-8 min-w-[350px]"><div className="w-20 h-20 bg-[#14130E] border border-zinc-900 flex items-center justify-center text-4xl font-black text-white">{lead.name?.[0]}</div><div><h4 className="text-3xl font-black text-white tracking-widest italic">{lead.name}</h4><p className="text-[10px] text-zinc-600 font-black tracking-[0.5em] mt-3">FOLLOW-UP DESDE: <span className="text-white">{formatTimeElapsed(lead.status_changed_at)}</span></p></div></div>
-             <div className="flex-1 flex gap-2">{phases.map((phase, i) => (<button key={i} onClick={() => updateFollowUpPhase(lead.id, i + 1)} className={`flex-1 py-6 border transition-all text-[10px] font-black tracking-widest ${ (lead.follow_up_phase || 0) >= i + 1 ? 'bg-white text-black border-white' : 'bg-transparent border-[#2A2922] text-zinc-800 hover:text-white' }`}>{ (lead.follow_up_phase || 0) > i + 1 ? <CheckCircle2 size={16} className="mx-auto" /> : <span>{i + 1} {phase.title}</span> }</button>))}</div>
-             <div className="flex gap-4"><button onClick={() => updateLeadStatus(lead.id, 'compareceu')} className="bg-white text-black p-5 hover:bg-zinc-200 transition-all"><UserCheck size={20} /></button><button onClick={() => { if(confirm('Remover?')) deleteLead(lead.id) }} className="bg-black text-zinc-800 p-5 border border-zinc-900 hover:text-red-500 transition-all"><Trash2 size={20} /></button></div>
+       <div><h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic uppercase">AJUSTES ELITE</h2><p className="text-[11px] text-zinc-600 uppercase tracking-[0.5em] font-light">GERENCIE SEU PERFIL PROFISSIONAL NO UNICO STUDIO.</p></div>
+       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-16 uppercase">
+          <div className="bg-[#1C1B16] border border-[#2A2922] p-12 space-y-10 shadow-2xl">
+              <div className="space-y-2 border-b border-[#2A2922] pb-6 mb-10"><h3 className="text-xl font-black text-white italic tracking-tighter uppercase">DADOS PESSOAIS</h3></div>
+              <div className="space-y-6">
+                <div className="space-y-2"><label className="text-[10px] font-black text-zinc-500 tracking-[0.2em] flex items-center gap-3 lowercase"><User size={14} /> NOME DO OPERADOR</label><input className="w-full bg-[#14130E] border border-[#2A2922] p-5 text-white text-xs font-black outline-none focus:border-white transition-all uppercase" value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} /></div>
+                <div className="space-y-2 opacity-50"><label className="text-[10px] font-black text-zinc-500 tracking-[0.2em] flex items-center gap-3 lowercase"><Briefcase size={14} /> CARGO ATUAL (VIA ADMIN)</label><input className="w-full bg-transparent border border-[#2A2922] p-5 text-zinc-600 text-xs font-black outline-none cursor-not-allowed uppercase" value={profile?.role} readOnly /></div>
+                <div className="space-y-2"><label className="text-[10px] font-black text-zinc-500 tracking-[0.2em] flex items-center gap-3 lowercase"><Tag size={14} /> TAG IDENTIFICADORA</label><input className="w-full bg-[#14130E] border border-[#2A2922] p-5 text-white text-xs font-black outline-none focus:border-white transition-all uppercase" value={formData.tag} onChange={e => setFormData({...formData, tag: e.target.value})} /></div>
+              </div>
           </div>
-        ))}{followUpLeads.length === 0 && <div className="py-40 text-center text-[11px] font-black uppercase text-zinc-900 tracking-[1em]">RADAR SINCRONIZADO.</div>}</div>
+          <div className="flex flex-col gap-12">
+             <div className="bg-[#1C1B16] border border-[#2A2922] p-12 space-y-10 shadow-2xl">
+                <div className="space-y-2 border-b border-[#2A2922] pb-6 mb-10"><h3 className="text-xl font-black text-white italic tracking-tighter uppercase">LINHAS DE CONTATO</h3></div>
+                <div className="space-y-6">
+                   <div className="space-y-2"><label className="text-[10px] font-black text-zinc-500 tracking-[0.2em] flex items-center gap-3 lowercase"><Phone size={14} /> WHATSAPP</label><input className="w-full bg-[#14130E] border border-[#2A2922] p-5 text-white text-xs font-black outline-none focus:border-white transition-all uppercase" value={formData.whatsapp} onChange={e => setFormData({...formData, whatsapp: e.target.value})} /></div>
+                   <div className="space-y-2"><label className="text-[10px] font-black text-zinc-500 tracking-[0.2em] flex items-center gap-3 lowercase"><Smartphone size={14} /> WHATSAPP COMERCIAL</label><input className="w-full bg-[#14130E] border border-[#2A2922] p-5 text-white text-xs font-black outline-none focus:border-white transition-all uppercase" value={formData.whatsapp_business} onChange={e => setFormData({...formData, whatsapp_business: e.target.value})} /></div>
+                </div>
+             </div>
+             <button type="submit" className="bg-white text-black p-8 font-black text-xs uppercase tracking-[0.3em] hover:bg-zinc-200 transition-all shadow-xl active:scale-95 uppercase">SALVAR AJUSTES STUDIO</button>
+          </div>
+       </form>
     </div>
   )
 }
@@ -290,15 +397,30 @@ const App = () => {
   const [profile, setProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => { setSession(session); if (session) fetchProfile(session.user.id); setLoading(false); })
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => { setSession(session); if (session) fetchProfile(session.user.id); else setProfile(null); })
+    supabase.auth.getSession().then(({ data: { session } }) => { setSession(session); if (session) fetchProfile(session.user.id, session.user.email); setLoading(false); })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => { setSession(session); if (session) fetchProfile(session.user.id, session.user.email); else setProfile(null); })
     return () => subscription.unsubscribe()
   }, [])
-  const fetchProfile = async (userId: string) => { const { data } = await supabase.from('profiles').select('*').eq('id', userId).single(); setProfile(data); }
+  const fetchProfile = async (userId: string, email?: string) => { 
+    const { data } = await supabase.from('profiles').select('*').eq('id', userId).single()
+    if (data) {
+      // Force CEO if email matches filippodeisgnerweb@gmail.com
+      if (email === 'filippodeisgnerweb@gmail.com' && data.role !== 'CEO') {
+        const { data: updated } = await supabase.from('profiles').update({ role: 'CEO' }).eq('id', userId).select().single()
+        setProfile(updated || data)
+      } else {
+        setProfile(data)
+      }
+    }
+  }
+  const handleUpdateProfile = async (updatedData: any) => { 
+    const { error } = await supabase.from('profiles').update(updatedData).eq('id', profile.id)
+    if (!error) fetchProfile(profile.id)
+  }
   return (
     <Router><AuthGuard session={session} profile={profile} loading={loading} onSignOut={() => supabase.auth.signOut()}>
-        <Routes><Route path="/" element={<Dashboard />} /><Route path="/leads" element={<Leads />} /><Route path="/kanban" element={<Kanban />} /><Route path="/follow-up" element={<FollowUp />} /><Route path="/appointments" element={<Agenda />} /><Route path="*" element={<Dashboard />} /></Routes>
-      </AuthGuard></Router>
+        <Routes><Route path="/" element={<DashboardUnified profile={profile} />} /><Route path="/admin" element={<AdminDashboard />} /><Route path="/admin/management" element={<AdminManagement />} /><Route path="/leads" element={<Leads />} /><Route path="/kanban" element={<Kanban />} /><Route path="/follow-up" element={<FollowUp />} /><Route path="/appointments" element={<Agenda />} /><Route path="/tasks" element={<Tasks profile={profile} />} /><Route path="/settings" element={<Settings profile={profile} onUpdate={handleUpdateProfile} />} /><Route path="*" element={<DashboardUnified profile={profile} />} /></Routes>
+    </AuthGuard></Router>
   )
 }
 export default App
