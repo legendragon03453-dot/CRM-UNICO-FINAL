@@ -66,24 +66,38 @@ const TempBadge = ({ temp }: { temp?: string }) => {
   return (<span className={`text-[9px] font-black uppercase px-3 py-1 border tracking-widest ${colors[temp as keyof typeof colors] || colors.frio}`}>{temp || 'FRIO'}</span>)
 }
 
+// Meeting Scheduler Modal
+const ScheduleModal = ({ lead, onClose, onSave }: { lead: Lead, onClose: () => void, onSave: (date: string, time: string) => void }) => {
+  const [date, setDate] = useState('')
+  const [time, setTime] = useState('')
+  return (
+     <div className="fixed inset-0 bg-black/98 backdrop-blur-3xl flex items-center justify-center p-4 z-[300] animate-in fade-in duration-300">
+        <div className="w-full max-w-md bg-[#1C1B16] border border-[#2A2922] p-12 space-y-10 shadow-2xl">
+           <div className="space-y-2"><h3 className="text-2xl font-black text-white italic tracking-tighter">AGENDAMENTO ELITE</h3><p className="text-[10px] text-zinc-700 font-bold tracking-widest uppercase">REUNIÃO ESTRATÉGICA PARA {lead.name}</p></div>
+           <div className="space-y-6">
+             <div className="space-y-2"><label className="text-[10px] font-black text-zinc-400 tracking-widest uppercase">DATA DO ENCONTRO</label><input type="date" className="w-full bg-[#14130E] border border-[#2A2922] p-5 text-white text-xs font-black outline-none focus:border-white transition-all uppercase" value={date} onChange={e => setDate(e.target.value)} /></div>
+             <div className="space-y-2"><label className="text-[10px] font-black text-zinc-400 tracking-widest uppercase">HORÁRIO EXCLUSIVO</label><input type="time" className="w-full bg-[#14130E] border border-[#2A2922] p-5 text-white text-xs font-black outline-none focus:border-white transition-all" value={time} onChange={e => setTime(e.target.value)} /></div>
+           </div>
+           <div className="flex gap-4 pt-10"><button onClick={onClose} className="flex-1 py-5 border border-[#2A2922] text-[10px] font-black text-zinc-700 hover:text-white transition-all uppercase">CANCELAR</button><button onClick={() => onSave(date, time)} className="flex-2 py-5 bg-white text-black text-[10px] font-black tracking-widest hover:bg-zinc-200 transition-all shadow-xl uppercase">CONFIRMAR AGENDA</button></div>
+        </div>
+     </div>
+  )
+}
+
 // --- ADMIN DASHBOARD ---
 const AdminDashboard = () => {
   const { leads } = useLeads()
   const { tasks } = useTasks()
   const [employees, setEmployees] = useState<any[]>([])
-
   useEffect(() => { supabase.from('profiles').select('*').then(({ data }) => setEmployees(data || [])) }, [])
-
   const faturamentoTotal = leads.reduce((acc, curr) => acc + (Number(curr.faturamento_estimado) || 0), 0)
   const completedTasks = tasks.filter(t => t.status === 'completed').length
-
   const stats = [
     { label: 'FATURAMENTO GLOBAL', value: `R$ ${faturamentoTotal.toLocaleString()}`, icon: <DollarSign />, color: 'white' },
     { label: 'LEADS TOTAIS', value: leads.length, icon: <Users />, color: 'white' },
     { label: 'QUADRO DE FUNCIONÁRIOS', value: employees.length, icon: <User />, color: 'white' },
     { label: 'tasks concluídas', value: `${completedTasks} / ${tasks.length}`, icon: <CheckCircle2 />, color: 'white' }
   ]
-
   return (
     <div className="space-y-16 animate-fade-in-up uppercase">
        <div className="flex items-center justify-between"><div><h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic">ADMIN PAINEL</h2><p className="text-[11px] text-zinc-600 uppercase tracking-[0.6em]">VISÃO ESTRATÉGICA UNICO STUDIO.</p></div></div>
@@ -120,24 +134,12 @@ const AdminDashboard = () => {
 // --- ADMIN MANAGEMENT ---
 const AdminManagement = () => {
   const [employees, setEmployees] = useState<any[]>([])
-  const { tasks, addTask } = useTasks()
+  const { addTask } = useTasks()
   const [selectedEmp, setSelectedEmp] = useState<any>(null)
   const [taskTitle, setTaskTitle] = useState('')
-
   const fetchEmployees = async () => { const { data } = await supabase.from('profiles').select('*'); setEmployees(data || []) }
   useEffect(() => { fetchEmployees() }, [])
-
-  const updateEmpRole = async (id: string, role: string) => { 
-    await supabase.from('profiles').update({ role }).eq('id', id)
-    fetchEmployees()
-  }
-
-  const updateEmpPoints = async (id: string, field: 'points_pos' | 'points_neg', val: string) => {
-    const arr = val.split(',').map(s => s.trim()).filter(Boolean)
-    await supabase.from('profiles').update({ [field]: arr }).eq(id, id)
-    fetchEmployees()
-  }
-
+  const updateEmpRole = async (id: string, role: string) => { await supabase.from('profiles').update({ role }).eq('id', id); fetchEmployees() }
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedEmp || !taskTitle) return
@@ -146,7 +148,6 @@ const AdminManagement = () => {
     setSelectedEmp(null)
     alert('Task Atribuída.')
   }
-
   return (
     <div className="space-y-16 animate-fade-in-up uppercase">
        <div className="flex items-center justify-between"><div><h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic">GESTÃO DE EQUIPE</h2><p className="text-[11px] text-zinc-600 uppercase tracking-[0.6em]">CONTROLE DE CAPITAL HUMANO UNICO STUDIO.</p></div></div>
@@ -156,18 +157,14 @@ const AdminManagement = () => {
               <tr key={emp.id} className="hover:bg-white/5"><td className="px-10 py-8"><div className="flex items-center gap-6"><div className="w-14 h-14 bg-black border border-zinc-900 flex items-center justify-center text-white font-black">{emp.full_name?.[0]}</div><div><p className="text-xl font-black text-white italic">{emp.full_name}</p><p className="text-[8px] text-zinc-700 italic tracking-[0.2em]">{emp.tag}</p></div></div></td>
                 <td className="px-10 py-8"><select className="bg-transparent border border-zinc-900 p-2 text-[10px] font-black text-zinc-600 focus:text-white focus:outline-none cursor-pointer" value={emp.role} onChange={e => updateEmpRole(emp.id, e.target.value)}><option value="CEO">CEO</option><option value="Asessor">Asessor</option><option value="Social Selling">Social Selling</option><option value="Convidado">Convidado</option></select></td>
                 <td className="px-10 py-8 max-w-xs space-y-2"><p className="text-[10px] font-black text-green-500 truncate">POS: {emp.points_pos?.join(', ')}</p><p className="text-[10px] font-black text-red-500 truncate">NEG: {emp.points_neg?.join(', ')}</p></td>
-                <td className="px-10 py-8 text-right space-x-4"><button onClick={() => setSelectedEmp(emp)} className="text-[10px] font-black p-3 border border-zinc-900 hover:text-white transition-colors">ADICIONAR TASK</button><button className="text-zinc-800 hover:text-white"><Edit2 size={16} /></button></td></tr>
+                <td className="px-10 py-8 text-right space-x-4"><button onClick={() => setSelectedEmp(emp)} className="text-[10px] font-black p-3 border border-zinc-900 hover:text-white transition-colors uppercase">ADICIONAR TASK</button></td></tr>
             ))}</tbody></table></div>
        </div>
-
        {selectedEmp && (
           <div className="fixed inset-0 bg-black/98 flex items-center justify-center p-4 z-[400] animate-in fade-in transition-all">
              <form onSubmit={handleAddTask} className="w-full max-w-lg bg-[#1C1B16] border border-[#2A2922] p-12 space-y-12 shadow-2xl relative">
                 <div className="flex justify-between items-start mb-6"><div><h3 className="text-3xl font-black text-white italic tracking-tighter">ATRIBUIR MISSÃO</h3><p className="text-[10px] text-zinc-700 tracking-[0.2em] font-bold">PARA: {selectedEmp.full_name}</p></div><button type="button" onClick={() => setSelectedEmp(null)}><X size={32} className="text-zinc-800 hover:text-white transition-colors" /></button></div>
-                <div className="space-y-12">
-                   <div className="space-y-4"><label className="text-[10px] font-black text-zinc-500 tracking-widest uppercase">DESCRIÇÃO DA TASK</label><input required className="w-full bg-[#14130E] border border-[#2A2922] p-6 text-white text-xs font-black outline-none focus:border-white transition-all uppercase" value={taskTitle} onChange={e => setTaskTitle(e.target.value)} placeholder="EX: ANALISAR LEADS DO CANAL ELITE" /></div>
-                   <button type="submit" className="w-full bg-white text-black p-8 font-black text-xs uppercase tracking-[0.5em] hover:bg-zinc-200 shadow-xl active:scale-95">ENVIAR ORDEM DE EXECUÇÃO</button>
-                </div>
+                <div className="space-y-12"><div className="space-y-4"><label className="text-[10px] font-black text-zinc-500 tracking-widest uppercase">DESCRIÇÃO DA TASK</label><input required className="w-full bg-[#14130E] border border-[#2A2922] p-6 text-white text-xs font-black outline-none focus:border-white transition-all uppercase" value={taskTitle} onChange={e => setTaskTitle(e.target.value)} placeholder="EX: ANALISAR LEADS DO CANAL ELITE" /></div><button type="submit" className="w-full bg-white text-black p-8 font-black text-xs uppercase tracking-[0.5em] hover:bg-zinc-200 shadow-xl active:scale-95">ENVIAR ORDEM DE EXECUÇÃO</button></div>
              </form>
           </div>
        )}
@@ -178,22 +175,13 @@ const AdminManagement = () => {
 // --- TASKS PAGE (EMPLOYEE VIEW) ---
 const Tasks = ({ profile }: { profile: any }) => {
   const { tasks, updateTaskStatus } = useTasks(profile?.id)
-  
-  const handleSave = async (id: string, currentStatus: string) => {
-    const newStatus = currentStatus === 'completed' ? 'pending' : 'completed'
-    await updateTaskStatus(id, newStatus)
-    alert('Progressivo Sincronizado com CEO.')
-  }
-
+  const handleSave = async (id: string, currentStatus: string) => { await updateTaskStatus(id, currentStatus === 'completed' ? 'pending' : 'completed'); alert('Progressivo Sincronizado com CEO.') }
   return (
     <div className="space-y-16 animate-fade-in-up uppercase">
        <div className="flex items-center justify-between"><div><h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic">PULSO DE EXECUÇÃO</h2><p className="text-[11px] text-zinc-600 uppercase tracking-[0.6em]">SUAS TASKS LINEARES UNICO STUDIO.</p></div></div>
        <div className="grid grid-cols-1 gap-8">{tasks.map(task => (
            <div key={task.id} className="bg-[#1C1B16] border border-[#2A2922] p-10 flex flex-col md:flex-row items-center gap-12 group hover:bg-[#2A2922] transition-all shadow-xl">
-              <div className="flex items-center gap-8 flex-1">
-                 <div className="w-14 h-14 border border-[#2A2922] flex items-center justify-center text-zinc-800 group-hover:text-white transition-all"><ListTodo size={24} /></div>
-                 <div><h4 className={`text-3xl font-black tracking-widest italic uppercase transition-all ${task.status === 'completed' ? 'text-zinc-800 line-through' : 'text-white'}`}>{task.title}</h4><p className="text-[9px] text-zinc-700 tracking-[0.5em] mt-2 italic uppercase">MISSÃO ATRIBUÍDA PELA ADMINISTRAÇÃO</p></div>
-              </div>
+              <div className="flex items-center gap-8 flex-1"><div className="w-14 h-14 border border-[#2A2922] flex items-center justify-center text-zinc-800 group-hover:text-white transition-all"><ListTodo size={24} /></div><div><h4 className={`text-3xl font-black tracking-widest italic uppercase transition-all ${task.status === 'completed' ? 'text-zinc-800 line-through' : 'text-white'}`}>{task.title}</h4><p className="text-[9px] text-zinc-700 tracking-[0.5em] mt-2 italic uppercase">MISSÃO ATRIBUÍDA PELA ADMINISTRAÇÃO</p></div></div>
               <div className="flex items-center gap-8"><button onClick={() => handleSave(task.id, task.status)} className={`px-12 py-6 text-[10px] font-black uppercase tracking-[0.5em] transition-all ${task.status === 'completed' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'bg-white text-black hover:bg-zinc-200'}`}>{task.status === 'completed' ? 'CONCLUÍDA' : 'MARCAR COMO FEITA'}</button></div>
            </div>
        ))}{tasks.length === 0 && <div className="py-40 text-center animate-pulse"><p className="text-[11px] text-zinc-900 font-black uppercase tracking-[1em]">SEM ORDENS DE SERVIÇO PENDENTES.</p></div>}</div>
@@ -201,17 +189,10 @@ const Tasks = ({ profile }: { profile: any }) => {
   )
 }
 
-// Existing Dash/Leads/Kanban/FollowUp implementation remains as previously defined (same logic, updated looks if needed)
-// I will include the Dashboard logic as defined above but renamed component if needed. Wait, I'll keep the names.
-const Dashboard_Old = Dashboard; 
-// ... I'll ensure Dashboard is the Admin one if user is Admin, or Personal one.
-// Actually, I'll keep the code clean.
-
 // Dashboard with Role-Specific metrics
 const DashboardUnified = ({ profile }: { profile: any }) => {
   const { leads, loading } = useLeads()
   const { tasks } = useTasks(profile?.id)
-  
   const stats = [{ label: 'PIPELINE ATIVO', value: leads.length, icon: <Users size={18} /> }, { label: 'SUAS TASKS', value: tasks.filter(t => t.status === 'pending').length, icon: <ListTodo size={18} /> }, { label: 'EQUITY ESTIMADO', value: `R$ ${leads.reduce((acc, curr) => acc + (Number(curr.faturamento_estimado) || 0), 0).toLocaleString()}`, icon: <DollarSign size={18} /> }, { label: 'OPORTUNIDADES ELITE', value: leads.filter(l => (l.ai_score || 0) > 80).length, icon: <Sparkles size={18} /> }]
   if (loading) return <div className="text-zinc-900 flex items-center justify-center min-h-[50vh] font-black uppercase animate-pulse text-[10px] tracking-[1em]">SINCRONIZANDO...</div>
   return (
@@ -227,9 +208,6 @@ const DashboardUnified = ({ profile }: { profile: any }) => {
     </div>
   )
 }
-
-// ... Leads, Kanban, FollowUp, Agenda (Keep same logic) ...
-// (Omitting for space but they should be in the final file)
 
 const Leads = () => {
   const { leads, loading, addLead } = useLeads()
@@ -303,7 +281,7 @@ const Kanban = () => {
           ))}
         </div>
       </DragDropContext>
-      {schedulingLead && <ScheduleModal lead={schedulingLead} onClose={() => setSchedulingLead(null)} onSave={(date, time) => { updateMeetingSchedule(schedulingLead.id, date, time); setSchedulingLead(null); }} />}
+      {schedulingLead && <ScheduleModal lead={schedulingLead} onClose={() => setSchedulingLead(null)} onSave={(date: string, time: string) => { updateMeetingSchedule(schedulingLead.id, date, time); setSchedulingLead(null); }} />}
     </div>
   )
 }
@@ -404,7 +382,6 @@ const App = () => {
   const fetchProfile = async (userId: string, email?: string) => { 
     const { data } = await supabase.from('profiles').select('*').eq('id', userId).single()
     if (data) {
-      // Force CEO if email matches filippodeisgnerweb@gmail.com
       if (email === 'filippodeisgnerweb@gmail.com' && data.role !== 'CEO') {
         const { data: updated } = await supabase.from('profiles').update({ role: 'CEO' }).eq('id', userId).select().single()
         setProfile(updated || data)
