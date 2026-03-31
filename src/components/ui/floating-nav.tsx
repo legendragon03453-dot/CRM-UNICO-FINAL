@@ -30,7 +30,7 @@ const FloatingNav = ({ isAdmin }: FloatingNavProps) => {
     { id: 8, icon: <Settings size={20} />, label: "Ajustes", path: "/settings" },
   ];
 
-  const activeIndex = items.findIndex(item => 
+  const activeIndex = items.findIndex(item =>
     location.pathname === item.path || (item.path !== "/" && location.pathname.startsWith(item.path))
   );
 
@@ -55,8 +55,8 @@ const FloatingNav = ({ isAdmin }: FloatingNavProps) => {
     const timer = setTimeout(updateIndicator, 50);
     window.addEventListener("resize", updateIndicator);
     return () => {
-        window.removeEventListener("resize", updateIndicator);
-        clearTimeout(timer);
+      window.removeEventListener("resize", updateIndicator);
+      clearTimeout(timer);
     };
   }, [activeIndex, location.pathname]);
 
@@ -74,10 +74,10 @@ const FloatingNav = ({ isAdmin }: FloatingNavProps) => {
             className="relative flex flex-col items-center justify-center flex-1 px-1 py-3 text-sm font-medium transition-colors duration-300 group"
           >
             <div className={`z-10 transition-all duration-300 ${activeIndex === index ? 'text-white scale-110' : 'text-zinc-600 hover:text-zinc-400'}`}>
-                {item.icon}
+              {item.icon}
             </div>
             <span className={`text-[8px] mt-1.5 hidden lg:block z-10 transition-colors duration-300 font-black uppercase tracking-widest ${activeIndex === index ? 'text-white' : 'text-zinc-800 group-hover:text-zinc-600'}`}>
-                {item.label}
+              {item.label}
             </span>
           </Link>
         ))}
@@ -88,17 +88,17 @@ const FloatingNav = ({ isAdmin }: FloatingNavProps) => {
           onClick={() => supabase.auth.signOut()}
           className="relative flex flex-col items-center justify-center px-4 py-3 text-zinc-600 hover:text-red-500 transition-all duration-300 group"
         >
-            <LogOut size={20} className="z-10 group-hover:rotate-12 transition-transform" />
-            <span className="text-[8px] mt-1.5 hidden lg:block z-10 font-black uppercase tracking-widest text-zinc-800 group-hover:text-red-900">SAIR</span>
+          <LogOut size={20} className="z-10 group-hover:rotate-12 transition-transform" />
+          <span className="text-[8px] mt-1.5 hidden lg:block z-10 font-black uppercase tracking-widest text-zinc-800 group-hover:text-red-900">SAIR</span>
         </button>
 
         {/* Sliding Active Indicator */}
         {activeIndex !== -1 && (
-            <motion.div
-                animate={indicatorStyle}
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                className="absolute top-1 bottom-1 rounded-full bg-white/5"
-            />
+          <motion.div
+            animate={indicatorStyle}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            className="absolute top-1 bottom-1 rounded-full bg-white/5"
+          />
         )}
       </div>
     </div>
