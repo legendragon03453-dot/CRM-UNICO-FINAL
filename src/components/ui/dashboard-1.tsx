@@ -60,13 +60,12 @@ export const MarketingDashboard = React.forwardRef<
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
 
-  const hoverTransition = { type: "spring", stiffness: 300, damping: 15 };
 
   return (
     <motion.div
       ref={ref}
       className={cn("w-full bg-[#14130E] text-white p-2 md:p-8 space-y-8", className)}
-      variants={containerVariants}
+      variants={staggerContainer}
       initial="hidden"
       animate="visible"
     >
