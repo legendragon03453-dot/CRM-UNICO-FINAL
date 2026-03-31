@@ -14,10 +14,15 @@ export interface Lead {
   ai_tags?: string[]
   ai_summary?: string
   owner_id?: string
+  registered_by_name?: string
   status_changed_at?: string
   last_activity: string
   created_at: string
   follow_up_phase?: number
+  product_type?: string
+  temperature?: 'frio' | 'morno' | 'quente'
+  meeting_date?: string
+  meeting_time?: string
 }
 
 export const useLeads = () => {
@@ -44,7 +49,12 @@ export const useLeads = () => {
   const addLead = async (lead: Partial<Lead>) => {
     const { data, error } = await supabase
       .from('leads')
-      .insert([{ ...lead, status_changed_at: new Date().toISOString(), follow_up_phase: 0 }])
+      .insert([{ 
+        ...lead, 
+        status_changed_at: new Date().toISOString(), 
+        follow_up_phase: 0,
+        temperature: lead.temperature || 'frio'
+      }])
       .select()
 
     if (error) {
@@ -60,9 +70,19 @@ export const useLeads = () => {
       .update({ status, status_changed_at: new Date().toISOString() })
       .eq('id', id)
 
-    if (error) {
-      console.error('Error updating lead status:', error)
-    }
+    if (error) console.error('Error updating lead status:', error)
+  }
+
+  const updateMeetingSchedule = async (id: string, date: string, time: string) => {
+    const { error } = await supabase
+      .from('leads')
+      .update({ 
+        meeting_date: date, 
+        meeting_time: time,
+        status: 'agendamento' // Sincroniza com Reunião Agendada
+      })
+      .eq('id', id)
+    if (error) console.error('Error scheduling meeting:', error)
   }
 
   const updateFollowUpPhase = async (id: string, phase: number) => {
@@ -70,10 +90,7 @@ export const useLeads = () => {
       .from('leads')
       .update({ follow_up_phase: phase })
       .eq('id', id)
-
-    if (error) {
-      console.error('Error updating follow-up phase:', error)
-    }
+    if (error) console.error('Error updating follow-up phase:', error)
   }
 
   const deleteLead = async (id: string) => {
@@ -81,15 +98,11 @@ export const useLeads = () => {
       .from('leads')
       .delete()
       .eq('id', id)
-
-    if (error) {
-       console.error('Error deleting lead:', error)
-    }
+    if (error) console.error('Error deleting lead:', error)
   }
 
   useEffect(() => {
     fetchLeads()
-
     const channel = supabase
       .channel('leads_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, (payload) => {
@@ -102,11 +115,10 @@ export const useLeads = () => {
         }
       })
       .subscribe()
-
     return () => {
       supabase.removeChannel(channel)
     }
   }, [])
 
-  return { leads, loading, fetchLeads, addLead, updateLeadStatus, updateFollowUpPhase, deleteLead }
+  return { leads, loading, fetchLeads, addLead, updateLeadStatus, updateFollowUpPhase, deleteLead, updateMeetingSchedule }
 }

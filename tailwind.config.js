@@ -7,14 +7,26 @@ export default {
   theme: {
     extend: {
       colors: {
-        'zinc-950': '#09090b',
-        'zinc-900': '#18181b',
-        'zinc-800': '#27272a',
-        'zinc-700': '#3f3f46',
+        studio: {
+          bg: '#14130E',
+          card: '#1C1B16',
+          border: '#2A2922',
+        }
       },
       fontFamily: {
         outfit: ['Outfit', 'sans-serif'],
       },
+      borderRadius: {
+        'none': '0',
+        'sm': '0',
+        'DEFAULT': '0',
+        'md': '0',
+        'lg': '0',
+        'xl': '0',
+        '2xl': '0',
+        '3xl': '0',
+        'full': '0',
+      }
     },
   },
   plugins: [],
