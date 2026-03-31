@@ -13,7 +13,11 @@ export interface Lead {
   ai_score?: number
   ai_tags?: string[]
   ai_summary?: string
+  owner_id?: string
+  status_changed_at?: string
+  last_activity: string
   created_at: string
+  follow_up_phase?: number
 }
 
 export const useLeads = () => {
@@ -40,7 +44,7 @@ export const useLeads = () => {
   const addLead = async (lead: Partial<Lead>) => {
     const { data, error } = await supabase
       .from('leads')
-      .insert([lead])
+      .insert([{ ...lead, status_changed_at: new Date().toISOString(), follow_up_phase: 0 }])
       .select()
 
     if (error) {
@@ -53,7 +57,7 @@ export const useLeads = () => {
   const updateLeadStatus = async (id: string, status: string) => {
     const { error } = await supabase
       .from('leads')
-      .update({ status })
+      .update({ status, status_changed_at: new Date().toISOString() })
       .eq('id', id)
 
     if (error) {
@@ -61,10 +65,31 @@ export const useLeads = () => {
     }
   }
 
+  const updateFollowUpPhase = async (id: string, phase: number) => {
+    const { error } = await supabase
+      .from('leads')
+      .update({ follow_up_phase: phase })
+      .eq('id', id)
+
+    if (error) {
+      console.error('Error updating follow-up phase:', error)
+    }
+  }
+
+  const deleteLead = async (id: string) => {
+    const { error } = await supabase
+      .from('leads')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+       console.error('Error deleting lead:', error)
+    }
+  }
+
   useEffect(() => {
     fetchLeads()
 
-    // Subscribe to realtime changes
     const channel = supabase
       .channel('leads_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, (payload) => {
@@ -83,5 +108,5 @@ export const useLeads = () => {
     }
   }, [])
 
-  return { leads, loading, fetchLeads, addLead, updateLeadStatus }
+  return { leads, loading, fetchLeads, addLead, updateLeadStatus, updateFollowUpPhase, deleteLead }
 }

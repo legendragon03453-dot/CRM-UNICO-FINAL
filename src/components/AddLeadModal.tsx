@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
-import { X, User, Globe, Phone, DollarSign, Calendar, Clock, Sparkles } from 'lucide-react'
+import { X, User, Globe, Phone, DollarSign, Calendar, Clock, Sparkles, UserCheck } from 'lucide-react'
 
 interface AddLeadModalProps {
   onClose: () => void
   onAdd: (lead: any) => void
+  profile?: any
 }
 
-export const AddLeadModal = ({ onClose, onAdd }: AddLeadModalProps) => {
+export const AddLeadModal = ({ onClose, onAdd, profile }: AddLeadModalProps) => {
   const [formData, setFormData] = useState({
     name: '',
     instagram: '',
@@ -27,7 +28,7 @@ export const AddLeadModal = ({ onClose, onAdd }: AddLeadModalProps) => {
 
   return (
     <div className="fixed inset-0 bg-[#000000]/95 backdrop-blur-3xl flex items-center justify-center p-4 z-[200] animate-in fade-in duration-700 overflow-y-auto">
-      <div className="w-full max-w-4xl bg-zinc-950 border border-zinc-900 rounded-[64px] shadow-[0_60px_150px_rgba(0,0,0,1)] relative overflow-hidden flex flex-col max-h-[95vh]">
+      <div className="w-full max-w-4xl bg-zinc-950 border border-zinc-900 rounded-[64px] shadow-[0_60px_150px_rgba(0,0,0,1)] relative overflow-hidden flex flex-col max-h-[95vh] my-auto">
         
         {/* Designer Header */}
         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-purple-500/40 to-transparent"></div>
@@ -52,14 +53,14 @@ export const AddLeadModal = ({ onClose, onAdd }: AddLeadModalProps) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
             {/* Nome */}
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.5em] ml-2 italic">Designer ID Name</label>
+              <label className="text-[10px] font-black text-white uppercase tracking-[0.5em] ml-2 italic">Nome Personalizado</label>
               <div className="relative group">
                 <span className="absolute left-0 top-1/2 -translate-y-1/2 text-zinc-800 group-focus-within:text-purple-400 transition-colors duration-500"><User size={18} /></span>
                 <input 
                   type="text" 
                   required
                   placeholder="DIGITE O NOME COMPLETO"
-                  className="w-full bg-transparent border-b-2 border-zinc-900 py-6 pl-10 text-xs font-black text-white tracking-[0.3em] focus:outline-none focus:border-purple-500/50 transition-all duration-500 placeholder:text-zinc-900 uppercase"
+                  className="w-full bg-transparent border-b-2 border-zinc-900 py-6 pl-10 text-xs font-black text-white tracking-[0.3em] focus:outline-none focus:border-purple-500/50 transition-all duration-500 placeholder:text-zinc-700 uppercase"
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
               </div>
@@ -67,13 +68,13 @@ export const AddLeadModal = ({ onClose, onAdd }: AddLeadModalProps) => {
 
             {/* Social */}
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.5em] ml-2 italic">Social Identity</label>
+              <label className="text-[10px] font-black text-white uppercase tracking-[0.5em] ml-2 italic">Identidade Social</label>
               <div className="relative group">
                 <span className="absolute left-0 top-1/2 -translate-y-1/2 text-zinc-800 group-focus-within:text-purple-400 transition-colors duration-500"><Globe size={18} /></span>
                 <input 
                   type="text" 
-                  placeholder="@ESTUDIO.DESIGN"
-                  className="w-full bg-transparent border-b-2 border-zinc-900 py-6 pl-10 text-xs font-black text-white tracking-[0.3em] focus:outline-none focus:border-purple-500/50 transition-all duration-500 placeholder:text-zinc-900 uppercase"
+                  placeholder="@USUARIO.INSTAGRAM"
+                  className="w-full bg-transparent border-b-2 border-zinc-900 py-6 pl-10 text-xs font-black text-white tracking-[0.3em] focus:outline-none focus:border-purple-500/50 transition-all duration-500 placeholder:text-zinc-700 uppercase"
                   onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
                 />
               </div>
@@ -81,14 +82,14 @@ export const AddLeadModal = ({ onClose, onAdd }: AddLeadModalProps) => {
 
             {/* Direct Line */}
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.5em] ml-2 italic">Direct Line</label>
+              <label className="text-[10px] font-black text-white uppercase tracking-[0.5em] ml-2 italic">Linha Direta (WhatsApp)</label>
               <div className="relative group">
                 <span className="absolute left-0 top-1/2 -translate-y-1/2 text-zinc-800 group-focus-within:text-purple-400 transition-colors duration-500"><Phone size={18} /></span>
                 <input 
                   type="text" 
                   required
-                  placeholder="+55 00 00000-0000"
-                  className="w-full bg-transparent border-b-2 border-zinc-900 py-6 pl-10 text-xs font-black text-white tracking-[0.3em] focus:outline-none focus:border-purple-500/50 transition-all duration-500 placeholder:text-zinc-900 uppercase"
+                  placeholder="+55 (00) 00000-0000"
+                  className="w-full bg-transparent border-b-2 border-zinc-900 py-6 pl-10 text-xs font-black text-white tracking-[0.3em] focus:outline-none focus:border-purple-500/50 transition-all duration-500 placeholder:text-zinc-700 uppercase"
                   onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
                 />
               </div>
@@ -96,14 +97,14 @@ export const AddLeadModal = ({ onClose, onAdd }: AddLeadModalProps) => {
 
             {/* Budget */}
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.5em] ml-2 italic">Ticket Potencial</label>
+              <label className="text-[10px] font-black text-white uppercase tracking-[0.5em] ml-2 italic">Budget do Projeto</label>
               <div className="relative group">
                 <span className="absolute left-0 top-1/2 -translate-y-1/2 text-zinc-800 group-focus-within:text-green-500 transition-colors duration-500"><DollarSign size={18} /></span>
                 <input 
                   type="number" 
                   required
-                  placeholder="0000.00"
-                  className="w-full bg-transparent border-b-2 border-zinc-900 py-6 pl-10 text-xs font-black text-white tracking-[0.3em] focus:outline-none focus:border-green-500/50 transition-all duration-500 placeholder:text-zinc-900"
+                  placeholder="EX: 15.000,00"
+                  className="w-full bg-transparent border-b-2 border-zinc-900 py-6 pl-10 text-xs font-black text-white tracking-[0.3em] focus:outline-none focus:border-green-500/50 transition-all duration-500 placeholder:text-zinc-700"
                   onChange={(e) => setFormData({ ...formData, faturamento_estimado: e.target.value })}
                 />
               </div>
@@ -111,13 +112,13 @@ export const AddLeadModal = ({ onClose, onAdd }: AddLeadModalProps) => {
 
             {/* Data */}
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.5em] ml-2 italic">Radar Slot Date</label>
+              <label className="text-[10px] font-black text-white uppercase tracking-[0.5em] ml-2 italic">Dia Sugerido</label>
               <div className="relative group">
                 <span className="absolute left-0 top-1/2 -translate-y-1/2 text-zinc-800 group-focus-within:text-purple-400 transition-colors duration-500"><Calendar size={18} /></span>
                 <input 
                   type="text" 
                   placeholder="EX: SEGUNDA-FEIRA"
-                  className="w-full bg-transparent border-b-2 border-zinc-900 py-6 pl-10 text-xs font-black text-white tracking-[0.3em] focus:outline-none focus:border-purple-500/50 transition-all duration-500 placeholder:text-zinc-900 uppercase"
+                  className="w-full bg-transparent border-b-2 border-zinc-900 py-6 pl-10 text-xs font-black text-white tracking-[0.3em] focus:outline-none focus:border-purple-500/50 transition-all duration-500 placeholder:text-zinc-700 uppercase"
                   onChange={(e) => setFormData({ ...formData, dia: e.target.value })}
                 />
               </div>
@@ -125,13 +126,13 @@ export const AddLeadModal = ({ onClose, onAdd }: AddLeadModalProps) => {
 
             {/* Horário */}
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.5em] ml-2 italic">Exclusive Slot Time</label>
+              <label className="text-[10px] font-black text-white uppercase tracking-[0.5em] ml-2 italic">Horário de Atendimento</label>
               <div className="relative group">
                 <span className="absolute left-0 top-1/2 -translate-y-1/2 text-zinc-800 group-focus-within:text-purple-400 transition-colors duration-500"><Clock size={18} /></span>
                 <input 
                   type="text" 
-                  placeholder="00:00"
-                  className="w-full bg-transparent border-b-2 border-zinc-900 py-6 pl-10 text-xs font-black text-white tracking-[0.3em] focus:outline-none focus:border-purple-500/50 transition-all duration-500 placeholder:text-zinc-900 uppercase"
+                  placeholder="EX: 14:30"
+                  className="w-full bg-transparent border-b-2 border-zinc-900 py-6 pl-10 text-xs font-black text-white tracking-[0.3em] focus:outline-none focus:border-purple-500/50 transition-all duration-500 placeholder:text-zinc-700 uppercase"
                   onChange={(e) => setFormData({ ...formData, horario: e.target.value })}
                 />
               </div>
@@ -144,7 +145,7 @@ export const AddLeadModal = ({ onClose, onAdd }: AddLeadModalProps) => {
               onClick={onClose}
               className="flex-1 py-8 bg-zinc-950 border-2 border-zinc-900 text-[11px] font-black uppercase tracking-[0.5em] text-zinc-700 hover:text-white hover:border-zinc-700 transition-all duration-700 rounded-full active:scale-95"
             >
-              Neutralizar Lead
+              Descartar
             </button>
             <button 
               type="submit" 
@@ -156,7 +157,13 @@ export const AddLeadModal = ({ onClose, onAdd }: AddLeadModalProps) => {
           </div>
         </form>
 
-        <div className="p-12 pt-0 text-center">
+        <div className="p-12 pt-0 text-center flex flex-col items-center gap-4">
+           {profile && (
+             <div className="flex items-center gap-2 px-6 py-3 bg-zinc-900/30 rounded-full border border-zinc-800 shadow-inner">
+               <UserCheck size={14} className="text-purple-400" />
+               <p className="text-[10px] text-zinc-500 font-black uppercase tracking-widest leading-none">Operador Responsável: <span className="text-white">{profile.full_name}</span></p>
+             </div>
+           )}
           <p className="text-[9px] text-zinc-900 font-extrabold uppercase tracking-[1em]">UNICO DESIGN SYSTEM © SECURE DATA FLOW</p>
         </div>
       </div>
