@@ -161,18 +161,18 @@ const Dashboard = () => {
             {leads.slice(0, 5).map(lead => (
               <div key={lead.id} className="flex items-center gap-8 p-6 hover:bg-zinc-950/50 rounded-3xl transition-all duration-500 cursor-pointer group border border-transparent hover:border-zinc-800">
                 <div className="w-16 h-16 bg-zinc-950 border border-zinc-800 rounded-[24px] flex items-center justify-center text-white font-black text-xl group-hover:scale-105 group-hover:border-purple-500/50 transition-all shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
-                  {lead.name[0]}
+                  {lead.name?.[0] || 'U'}
                 </div>
                 <div className="flex-1">
-                  <p className="text-xl font-black tracking-tighter text-white group-hover:text-purple-400 transition-colors uppercase italic">{lead.name}</p>
-                  <p className="text-[10px] text-zinc-600 uppercase tracking-[0.2em] font-medium mt-1">Status Ativo: <span className="text-white">{new Date(lead.created_at).toLocaleDateString()}</span></p>
+                  <p className="text-xl font-black tracking-tighter text-white group-hover:text-purple-400 transition-colors uppercase italic">{lead.name || 'Lead Único'}</p>
+                  <p className="text-[10px] text-zinc-600 uppercase tracking-[0.2em] font-medium mt-1">Status Ativo: <span className="text-white">{new Date(lead.created_at || Date.now()).toLocaleDateString()}</span></p>
                 </div>
                 <div className="text-right flex flex-col items-end gap-3">
-                  <span className={`text-[10px] font-black uppercase p-1.5 rounded-lg border tracking-[0.2em] ${lead.ai_score > 80 ? 'text-green-400 border-green-500/20' : 'text-zinc-600 border-zinc-900'} bg-black shadow-inner`}>
+                  <span className={`text-[10px] font-black uppercase p-1.5 rounded-lg border tracking-[0.2em] ${(lead.ai_score || 0) > 80 ? 'text-green-400 border-green-500/20' : 'text-zinc-600 border-zinc-900'} bg-black shadow-inner`}>
                     {lead.ai_score ? `${lead.ai_score}% IA` : '??% IA'}
                   </span>
                   <span className="text-[9px] font-black uppercase py-2 px-5 bg-zinc-950 text-purple-400 rounded-full border border-zinc-900 group-hover:border-purple-500/30 transition-all tracking-[0.1em]">
-                    {lead.status.replace('_', ' ')}
+                    {lead.status?.replace('_', ' ') || 'status'}
                   </span>
                 </div>
               </div>
@@ -261,10 +261,10 @@ const Leads = () => {
                   <td className="px-10 py-10">
                     <div className="flex items-center gap-8">
                       <div className="w-14 h-14 rounded-3xl bg-zinc-950 border border-zinc-800 flex items-center justify-center text-lg font-black group-hover:border-purple-500/40 group-hover:text-purple-400 transition-all text-white shadow-lg">
-                        {lead.name[0]}
+                        {lead.name?.[0] || 'U'}
                       </div>
                       <div>
-                        <p className="text-xl font-black tracking-tighter text-white italic">{lead.name}</p>
+                        <p className="text-xl font-black tracking-tighter text-white italic">{lead.name || 'Lead Único'}</p>
                         <p className="text-[9px] text-zinc-700 font-extrabold tracking-[0.4em] mt-1 uppercase">UNICO HIGH TICKET</p>
                       </div>
                     </div>
@@ -297,7 +297,7 @@ const Leads = () => {
                   </td>
                   <td className="px-10 py-10">
                     <span className="text-[10px] font-black uppercase py-2.5 px-6 bg-black text-purple-400 rounded-full border border-zinc-900 group-hover:border-purple-500/30 transition-all tracking-[0.1em] shadow-inner">
-                      {lead.status.replace('_', ' ')}
+                      {lead.status?.replace('_', ' ') || 'status'}
                     </span>
                   </td>
                   <td className="px-10 py-10 text-right">
@@ -388,7 +388,7 @@ const Kanban = () => {
 
                   <div className="flex justify-between items-start mb-8">
                     <div className="flex-1">
-                      <h4 className="text-2xl font-black text-white tracking-tighter group-hover:text-purple-400 transition-colors uppercase italic leading-none truncate">{lead.name}</h4>
+                      <h4 className="text-2xl font-black text-white tracking-tighter group-hover:text-purple-400 transition-colors uppercase italic leading-none truncate">{lead.name || 'Lead Único'}</h4>
                       <div className="flex flex-wrap gap-2 mt-5">
                         {lead.ai_tags?.slice(0, 2).map((tag, i) => (
                           <span key={i} className="text-[9px] font-black uppercase py-1.5 px-4 bg-zinc-950 text-zinc-600 rounded-full border border-zinc-900 transition-all tracking-[0.1em]">
