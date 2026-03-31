@@ -33,7 +33,7 @@ const AuthGuard = ({ children, session, profile, loading, onSignOut }: any) => {
 // Layout Component (Fixed Sidebar Architecture - Linear Edition)
 const Layout = ({ children, profile, onSignOut }: { children: React.ReactNode, profile: any, onSignOut: () => void }) => {
   const location = useLocation();
-  const isAdmin = profile?.role === 'CEO' || profile?.role === 'Asessor';
+  const isAdmin = profile?.role === 'admin';
 
   const navItems = [
     { icon: <LayoutDashboard size={18} />, label: 'PAINEL', path: '/' },
@@ -200,7 +200,7 @@ const AdminManagement = () => {
           <div className="overflow-x-auto"><table className="w-full text-left border-collapse"><thead className="text-zinc-700 text-[10px] uppercase font-black border-b border-[#2A2922]"><tr><th className="px-10 py-8">OPERADOR / TAG</th><th className="px-10 py-8">CARGO</th><th className="px-10 py-8 text-center">TASKS</th><th className="px-10 py-8 text-right">AÇÕES</th></tr></thead>
             <tbody className="divide-y divide-zinc-900">{employees.map(emp => (
               <tr key={emp.id} className="hover:bg-white/5 transition-colors"><td className="px-10 py-8"><div className="flex items-center gap-6"><div className="w-14 h-14 bg-black border border-zinc-900 flex items-center justify-center text-white font-black italic">{emp.full_name?.[0]}</div><div><p className="text-xl font-black text-white italic truncate">{emp.full_name}</p><p className="text-[10px] text-zinc-800 italic uppercase mt-1">TAG: {emp.tag || 'PENDENTE'}</p></div></div></td>
-                <td className="px-10 py-8"><span className="text-[10px] font-black px-4 py-2 border border-zinc-800 bg-black text-zinc-600 uppercase">{emp.role}</span></td>
+                <td className="px-10 py-8"><span className="text-[10px] font-black px-4 py-2 border border-zinc-800 bg-black text-zinc-600 uppercase">{emp.role === 'admin' ? 'CEO' : emp.role}</span></td>
                 <td className="px-10 py-8 text-center"><button onClick={() => setSelectedEmp(emp)} className="inline-flex items-center gap-3 text-[10px] font-black text-white bg-zinc-900 px-6 py-3 border border-zinc-800 hover:bg-white hover:text-black transition-all active:scale-95 uppercase"><Plus size={14} /> ENVIAR TASK</button></td>
                 <td className="px-10 py-8 text-right"><button onClick={() => setEditEmp({ ...emp, points_pos: emp.points_pos?.join(', ') || '', points_neg: emp.points_neg?.join(', ') || '' })} className="p-4 border border-zinc-900 text-zinc-700 hover:text-white transition-all active:scale-95"><Edit2 size={18} /></button></td></tr>
             ))}</tbody></table></div>
@@ -443,8 +443,9 @@ const App = () => {
   const fetchProfile = async (userId: string, email?: string) => { 
     const { data } = await supabase.from('profiles').select('*').eq('id', userId).single()
     if (data) {
-      if (email === 'filippodeisgnerweb@gmail.com' && data.role !== 'CEO') {
-        const { data: updated } = await supabase.from('profiles').update({ role: 'CEO' }).eq('id', userId).select().single()
+      const isCEOEmail = email === 'filippodeisgnerweb@gmail.com' || email === 'filippodesignerweb@gmail.com';
+      if (isCEOEmail && data.role !== 'admin') {
+        const { data: updated } = await supabase.from('profiles').update({ role: 'admin' }).eq('id', userId).select().single()
         setProfile(updated || data)
       } else {
         setProfile(data)
