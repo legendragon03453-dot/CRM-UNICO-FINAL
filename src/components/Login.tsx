@@ -30,7 +30,7 @@ export const Login = () => {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#D8B4FE]/5 rounded-full blur-[180px] animate-pulse"></div>
 
       <div className="w-full max-w-lg animate-fade-in-up relative">
-        <div className="glass p-16 rounded-[40px] border-white/5 shadow-[0_40px_100px_rgba(0,0,0,1)]">
+        <div className="bg-zinc-900/50 backdrop-blur-xl p-16 rounded-[40px] border border-zinc-800 shadow-[0_40px_100px_rgba(0,0,0,1)]">
           <div className="text-center mb-16">
             <h1 className="text-7xl font-black text-[#FFFFFF] tracking-tighter mb-4 leading-none">UNICO</h1>
             <p className="text-[#888888] text-[10px] uppercase tracking-[0.6em] font-light flex items-center justify-center gap-3">

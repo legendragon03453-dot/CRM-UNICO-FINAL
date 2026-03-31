@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { X, User, Instagram, Phone, DollarSign, Calendar, Clock, Sparkles } from 'lucide-react'
+import { X, User, Globe, Phone, DollarSign, Calendar, Clock, Sparkles } from 'lucide-react'
 
 interface AddLeadModalProps {
   onClose: () => void
@@ -27,7 +27,7 @@ export const AddLeadModal = ({ onClose, onAdd }: AddLeadModalProps) => {
 
   return (
     <div className="fixed inset-0 bg-[#000000]/90 backdrop-blur-3xl flex items-center justify-center p-4 z-50 animate-in fade-in duration-500 overflow-y-auto">
-      <div className="w-full max-w-2xl glass rounded-[40px] border-white/5 shadow-[0_40px_100px_rgba(0,0,0,1)] relative overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="w-full max-w-2xl bg-zinc-950/80 backdrop-blur-3xl rounded-[40px] border border-zinc-800 shadow-[0_40px_100px_rgba(0,0,0,1)] relative overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Glow Header */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#D8B4FE]/30 to-transparent"></div>
@@ -42,7 +42,7 @@ export const AddLeadModal = ({ onClose, onAdd }: AddLeadModalProps) => {
           </div>
           <button 
             onClick={onClose}
-            className="text-[#333] hover:text-[#FFFFFF] glass border-transparent hover:border-white/10 p-4 rounded-full transition-all group active:scale-90"
+            className="text-zinc-500 hover:text-white bg-zinc-950/50 backdrop-blur-md border border-zinc-800 p-4 rounded-full transition-all group active:scale-90"
           >
             <X size={18} className="group-hover:rotate-90 transition-transform" />
           </button>
@@ -69,7 +69,7 @@ export const AddLeadModal = ({ onClose, onAdd }: AddLeadModalProps) => {
             <div className="space-y-3">
               <label className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em] ml-1">Social ID</label>
               <div className="relative group">
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#333] group-focus-within:text-[#D8B4FE] transition-colors"><Instagram size={16} /></span>
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#333] group-focus-within:text-[#D8B4FE] transition-colors"><Globe size={16} /></span>
                 <input 
                   type="text" 
                   placeholder="@ESTUDIO.DESIGN"
@@ -142,7 +142,7 @@ export const AddLeadModal = ({ onClose, onAdd }: AddLeadModalProps) => {
             <button 
               type="button"
               onClick={onClose}
-              className="flex-1 py-6 glass border-white/10 text-[10px] font-black uppercase tracking-[0.3em] text-[#888888] hover:text-[#FFFFFF] transition-all rounded-2xl active:scale-95"
+              className="flex-1 py-6 bg-zinc-950/50 backdrop-blur-md border border-zinc-900 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 hover:text-white transition-all rounded-2xl active:scale-95"
             >
               Descartar Proposta
             </button>
