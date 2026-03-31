@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom'
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
+import { DragDropContext, Droppable, Draggable, DroppableProvided, DraggableProvided, DraggableStateSnapshot } from '@hello-pangea/dnd'
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { LayoutDashboard, Users, Columns, MessageSquare, Calendar as CalendarIcon, Settings, LogOut, Plus, Search, Filter, TrendingUp, DollarSign, UserCheck, Globe, Smartphone, Sparkles, Sun, Moon, ThumbsUp, ThumbsDown, Trash2, Clock, CheckCircle2, ChevronRight, X, Flame, AlertCircle, Briefcase, Calendar } from 'lucide-react'
@@ -32,7 +32,6 @@ const AuthGuard = ({ children, session, profile, loading, onSignOut }: any) => {
 // Layout Component (Fixed Sidebar Architecture - Linear Edition)
 const Layout = ({ children, profile, onSignOut }: { children: React.ReactNode, profile: any, onSignOut: () => void }) => {
   const location = useLocation();
-  const [isDarkMode, setIsDarkMode] = useState(true);
 
   const navItems = [
     { icon: <LayoutDashboard size={18} />, label: 'PAINEL', path: '/' },
@@ -45,7 +44,7 @@ const Layout = ({ children, profile, onSignOut }: { children: React.ReactNode, p
 
   return (
     <div className={`flex min-h-screen font-outfit selection:bg-white/10 overflow-x-hidden transition-colors duration-500 bg-[#14130E] text-white`}>
-      <aside className={`w-64 fixed left-0 top-0 h-screen border-r border-[#2A2922] bg-[#14130E] flex flex-col p-6 z-50 rounded-none`}>
+      <aside className={`w-64 fixed left-0 top-0 h-screen border-r border-[#2A2922] bg-[#14130E] flex flex-col p-6 z-50 rounded-none shadow-2xl`}>
         <div className="mb-12 px-2 flex items-center justify-between border-b border-[#2A2922] pb-8">
           <div>
             <h1 className="text-4xl font-black tracking-tighter leading-none mb-1 text-white italic">UNICO</h1>
@@ -91,31 +90,65 @@ const TempBadge = ({ temp }: { temp?: string }) => {
   )
 }
 
+// Dashboard component (Métricas)
+const Dashboard = () => {
+  const { leads, loading } = useLeads()
+  const [profile, setProfile] = useState<any>(null)
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) supabase.from('profiles').select('*').eq('id', user.id).single().then(({ data }) => setProfile(data))
+    })
+  }, [])
+  const stats = [
+    { label: 'PIPELINE ATIVO', value: leads.length, icon: <Users size={18} />, color: 'white' },
+    { label: 'CONVERSÃO AGENDADA', value: leads.filter(l => l.status === 'reuniao_agendada').length, icon: <Clock size={18} />, color: 'white' },
+    { label: 'EQUITY ESTIMADO', value: `R$ ${leads.reduce((acc, curr) => acc + (Number(curr.faturamento_estimado) || 0), 0).toLocaleString()}`, icon: <DollarSign size={18} />, color: 'white' },
+    { label: 'OPORTUNIDADES ELITE', value: leads.filter(l => (l.ai_score || 0) > 80).length, icon: <Sparkles size={18} />, color: 'white' },
+  ]
+  if (loading) return <div className="text-zinc-900 flex items-center justify-center min-h-[50vh] font-black uppercase animate-pulse">Sincronizando Métricas...</div>
+  return (
+    <div className="space-y-16 animate-fade-in-up uppercase">
+      <div className="flex items-center justify-between"><h2 className="text-8xl font-black tracking-tighter mb-2 text-white italic">PAINEL ANALÍTICO</h2></div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {stats.map((stat, i) => (
+          <div key={i} className="bg-[#1C1B16] border border-[#2A2922] p-10 flex flex-col gap-8 group hover:bg-[#2A2922] transition-all shadow-2xl relative overflow-hidden">
+            <div className="flex items-center justify-between"><span className="p-4 bg-white text-black group-hover:scale-110 transition-all">{stat.icon}</span></div>
+            <div><p className="text-[10px] font-bold text-zinc-600 tracking-[0.2em] mb-2">{stat.label}</p><h3 className="text-4xl font-black text-white italic tracking-tighter">{stat.value}</h3></div>
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="lg:col-span-1 bg-[#1C1B16] border border-[#2A2922] p-12 shadow-2xl space-y-12">
+           <h3 className="text-[10px] font-black tracking-[0.3em] text-white/50 border-b border-[#2A2922] pb-6">PERFORMANCE OPERADOR: {profile?.full_name}</h3>
+           <div className="space-y-10">
+              <div className="space-y-6"><p className="text-[10px] font-black text-white flex items-center gap-3"><ThumbsUp size={14} /> PONTOS FORTES</p>
+              <div className="flex flex-wrap gap-2">{(profile?.points_pos || ['Agilidade', 'Conversão Elite']).map((p: any, i: number) => (<span key={i} className="text-[9px] bg-white text-black px-4 py-2 font-black italic">{p}</span>))}</div></div>
+              <div className="space-y-6"><p className="text-[10px] font-black text-white flex items-center gap-3"><ThumbsDown size={14} /> A MELHORAR</p>
+              <div className="flex flex-wrap gap-2">{(profile?.points_neg || ['Tempo de Resposta', 'CRM']).map((p: any, i: number) => (<span key={i} className="text-[9px] bg-black border border-[#2A2922] text-zinc-600 px-4 py-2 font-black italic">{p}</span>))}</div></div>
+           </div>
+        </div>
+        <div className="lg:col-span-2 bg-[#1C1B16] border border-[#2A2922] p-12 shadow-2xl">
+           <h3 className="text-[10px] font-black border-b border-[#2A2922] pb-6 mb-10 text-zinc-700 tracking-widest">FLUXO DE CAPTAÇÃO ATUAL</h3>
+           <div className="space-y-2">{leads.slice(0, 6).map(lead => (<div key={lead.id} className="flex items-center gap-8 p-6 hover:bg-white/5 transition-all group"><div className="w-14 h-14 bg-black border border-zinc-900 flex items-center justify-center text-white font-black">{lead.name?.[0]}</div><div className="flex-1 truncate"><p className="text-xl font-black text-white group-hover:text-zinc-200 italic truncate">{lead.name}</p><p className="text-[9px] text-zinc-700 tracking-widest mt-1">STATUS: {lead.status?.replace('_', ' ')}</p></div><div className="text-right text-xs font-black text-white">{lead.ai_score || 0}% IA</div></div>))}</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // Meeting Scheduler Modal
 const ScheduleModal = ({ lead, onClose, onSave }: { lead: Lead, onClose: () => void, onSave: (date: string, time: string) => void }) => {
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
   return (
-     <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl flex items-center justify-center p-4 z-[300] animate-in fade-in transition-all">
-        <div className="w-full max-w-md bg-[#1C1B16] border border-[#2A2922] p-12 space-y-10 rounded-none shadow-2xl">
-           <div className="space-y-2">
-             <h3 className="text-xl font-black text-white uppercase tracking-tighter italic">AGENDAR REUNIÃO ELITE</h3>
-             <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">DEFINA O DIA E HORÁRIO PARA {lead.name}</p>
-           </div>
+     <div className="fixed inset-0 bg-black/98 backdrop-blur-3xl flex items-center justify-center p-4 z-[300] animate-in fade-in duration-300">
+        <div className="w-full max-w-md bg-[#1C1B16] border border-[#2A2922] p-12 space-y-10 shadow-2xl">
+           <div className="space-y-2"><h3 className="text-2xl font-black text-white italic tracking-tighter">AGENDAMENTO ELITE</h3><p className="text-[10px] text-zinc-700 font-bold tracking-widest">REUNIÃO ESTRATÉGICA PARA {lead.name}</p></div>
            <div className="space-y-6">
-             <div className="space-y-2">
-               <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">DATA DO ENCONTRO</label>
-               <input type="date" className="w-full bg-[#14130E] border border-[#2A2922] p-4 text-white text-xs font-black outline-none focus:border-white transition-all uppercase" value={date} onChange={e => setDate(e.target.value)} />
-             </div>
-             <div className="space-y-2">
-               <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">HORÁRIO EXCLUSIVO</label>
-               <input type="time" className="w-full bg-[#14130E] border border-[#2A2922] p-4 text-white text-xs font-black outline-none focus:border-white transition-all" value={time} onChange={e => setTime(e.target.value)} />
-             </div>
+             <div className="space-y-2"><label className="text-[10px] font-black text-zinc-400 tracking-widest">DATA DO ENCONTRO</label><input type="date" className="w-full bg-[#14130E] border border-[#2A2922] p-5 text-white text-xs font-black outline-none focus:border-white transition-all uppercase" value={date} onChange={e => setDate(e.target.value)} /></div>
+             <div className="space-y-2"><label className="text-[10px] font-black text-zinc-400 tracking-widest">HORÁRIO EXCLUSIVO</label><input type="time" className="w-full bg-[#14130E] border border-[#2A2922] p-5 text-white text-xs font-black outline-none focus:border-white transition-all" value={time} onChange={e => setTime(e.target.value)} /></div>
            </div>
-           <div className="flex gap-4 pt-10">
-              <button onClick={onClose} className="flex-1 py-4 border border-[#2A2922] text-[10px] font-black uppercase text-zinc-600 hover:text-white">CANCELAR</button>
-              <button onClick={() => onSave(date, time)} className="flex-2 py-4 bg-white text-black text-[10px] font-black uppercase tracking-widest hover:bg-zinc-200">CONFIRMAR AGENDA</button>
-           </div>
+           <div className="flex gap-4 pt-10"><button onClick={onClose} className="flex-1 py-5 border border-[#2A2922] text-[10px] font-black text-zinc-700 hover:text-white transition-all">CANCELAR</button><button onClick={() => onSave(date, time)} className="flex-2 py-5 bg-white text-black text-[10px] font-black tracking-widest hover:bg-zinc-200 transition-all shadow-xl">CONFIRMAR AGENDA</button></div>
         </div>
      </div>
   )
@@ -125,93 +158,34 @@ const ScheduleModal = ({ lead, onClose, onSave }: { lead: Lead, onClose: () => v
 const Kanban = () => {
   const { leads, loading, updateLeadStatus, updateMeetingSchedule, deleteLead } = useLeads()
   const [schedulingLead, setSchedulingLead] = useState<Lead | null>(null)
-
-  const columns = [
-    { id: 'novo_lead', label: 'NOVO LEAD / INBOX', color: '#FFFFFF' },
-    { id: 'iniciou_atendimento', label: 'INICIOU ATENDIMENTO', color: '#FFFFFF' },
-    { id: 'conversando', label: 'CONVERSANDO', color: '#FFFFFF' },
-    { id: 'aguardando_resposta', label: 'AGUARDANDO RESPOSTA', color: '#FFFFFF' },
-    { id: 'follow_up', label: 'FOLLOW UP', color: '#FAA700' },
-    { id: 'reuniao_agendada', label: 'REUNIÃO AGENDADA', color: '#FAA700' },
-    { id: 'compareceu', label: 'COMPARECEU', color: '#FAA700' },
-    { id: 'vendido', label: 'VENDIDO', color: '#22C55E' },
-    { id: 'perdido', label: 'PERDIDO / SEM CONTATO', color: '#EF4444' },
-  ]
-
+  const columns = [{ id: 'novo_lead', label: 'NOVO LEAD / INBOX' }, { id: 'iniciou_atendimento', label: 'INICIOU ATENDIMENTO' }, { id: 'conversando', label: 'CONVERSANDO' }, { id: 'aguardando_resposta', label: 'AGUARDANDO RESPOSTA' }, { id: 'follow_up', label: 'FOLLOW UP' }, { id: 'reuniao_agendada', label: 'REUNIÃO AGENDADA' }, { id: 'compareceu', label: 'COMPARECEU' }, { id: 'vendido', label: 'VENDIDO' }, { id: 'perdido', label: 'PERDIDO / SEM CONTATO' }]
   const onDragEnd = (result: any) => {
     if (!result.destination) return
     const { draggableId, destination } = result
     const lead = leads.find(l => l.id === draggableId)
     if (!lead) return
-    
-    // Check for scheduling trigger
-    if (destination.droppableId === 'reuniao_agendada' && lead.status !== 'reuniao_agendada') {
-      setSchedulingLead(lead)
-    } else {
-      updateLeadStatus(draggableId, destination.droppableId)
-    }
+    if (destination.droppableId === 'reuniao_agendada' && lead.status !== 'reuniao_agendada') setSchedulingLead(lead)
+    else updateLeadStatus(draggableId, destination.droppableId)
   }
-
   if (loading) return <div className="text-zinc-800 flex items-center justify-center min-h-[50vh] font-black uppercase animate-pulse">MAPEANDO PIPELINE...</div>
-
   return (
     <div className="space-y-16 animate-fade-in-up h-full">
       <h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic">PIPELINE LINEAR</h2>
-      
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex gap-8 overflow-x-auto pb-10 custom-scrollbar px-1 min-h-[850px] items-start">
           {columns.map((column) => (
             <Droppable key={column.id} droppableId={column.id}>
-              {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef} className="flex-shrink-0 w-[380px] flex flex-col gap-8 bg-[#1C1B16]/20 border border-[#2A2922] p-6 pb-20 rounded-none relative">
-                  <div className="flex items-center gap-4 border-b border-[#2A2922] pb-6 px-2">
-                    <div className="w-1 h-8 rounded-none" style={{ backgroundColor: column.color }}></div>
-                    <div className="flex-1">
-                      <h3 className="font-black text-white uppercase text-[11px] tracking-widest leading-none">{column.label}</h3>
-                      <p className="text-[9px] text-zinc-600 font-bold tracking-widest mt-2">{leads.filter(l => l.status === column.id).length} OPORTUNIDADES ELITE</p>
-                    </div>
-                  </div>
-
+              {(provided: DroppableProvided) => (
+                <div {...provided.droppableProps} ref={provided.innerRef} className="flex-shrink-0 w-[380px] flex flex-col gap-8 bg-[#1C1B16]/20 border border-[#2A2922] p-6 pb-20 rounded-none relative transition-all">
+                  <div className="flex items-center gap-4 border-b border-[#2A2922] pb-6 px-2"><div className="w-1 h-8 bg-white"></div><div className="flex-1"><h3 className="font-black text-white uppercase text-[11px] tracking-widest leading-none">{column.label}</h3><p className="text-[9px] text-zinc-800 font-bold tracking-widest mt-2">{leads.filter(l => l.status === column.id).length} OPORTUNIDADES</p></div></div>
                   <div className="space-y-6">
                     {leads.filter(l => l.status === column.id).map((lead, index) => (
                       <Draggable key={lead.id} draggableId={lead.id} index={index}>
-                        {(provided, snapshot) => (
-                          <div 
-                            ref={provided.innerRef} 
-                            {...provided.draggableProps} 
-                            {...provided.dragHandleProps}
-                            className={`bg-[#1C1B16] border border-[#2A2922] p-8 rounded-none transition-all duration-300 relative group shadow-xl ${snapshot.isDragging ? 'dnd-dragging' : 'hover:border-zinc-400'}`}
-                          >
-                             <div className="flex justify-between items-start mb-6">
-                                <div className="flex-1">
-                                   <div className="flex gap-2 mb-3">
-                                      <TempBadge temp={lead.temperature} />
-                                      {lead.status === 'vendido' && <span className="text-[9px] font-black bg-green-500 text-black px-2 py-1 uppercase tracking-tighter">FECHAMENTO</span>}
-                                   </div>
-                                   <h4 className="text-xl font-black text-white tracking-widest group-hover:text-zinc-200 uppercase italic truncate">{lead.name}</h4>
-                                </div>
-                                <span className={`text-[10px] font-bold py-1 px-3 border border-zinc-900 bg-black text-zinc-500 uppercase tracking-widest`}>{lead.ai_score || 0}%</span>
-                             </div>
-
-                             <div className="space-y-4 mb-8">
-                                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest flex items-center gap-3">
-                                   <Briefcase size={12} className="text-white/20" /> {lead.product_type || 'PRODUTO NÃO DEFINIDO'}
-                                </p>
-                                <p className="text-lg text-white font-black tracking-tighter uppercase italic flex items-center gap-3">
-                                   R$ {Number(lead.faturamento_estimado || 0).toLocaleString()}
-                                </p>
-                             </div>
-
-                             <div className="border-t border-zinc-800 pt-6 flex justify-between items-center">
-                                <div className="flex flex-col gap-1">
-                                   <p className="text-[8px] text-zinc-700 font-black uppercase tracking-widest">RESISTRO:</p>
-                                   <p className="text-[10px] text-zinc-400 font-bold tracking-tighter uppercase italic truncate max-w-[150px]">{lead.registered_by_name || 'AGENTE STUDIO'}</p>
-                                </div>
-                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                   <button onClick={() => deleteLead(lead.id)} className="p-2 text-zinc-800 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
-                                   <button className="p-2 text-zinc-800 hover:text-white transition-colors"><ChevronRight size={16} /></button>
-                                </div>
-                             </div>
+                        {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
+                          <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={`bg-[#1C1B16] border border-[#2A2922] p-8 rounded-none transition-all duration-300 relative group shadow-xl ${snapshot.isDragging ? 'dnd-dragging opacity-80 border-white' : 'hover:border-zinc-400'}`}>
+                             <div className="flex justify-between items-start mb-6"><div className="flex-1"><div className="flex gap-2 mb-3"><TempBadge temp={lead.temperature} />{lead.status === 'vendido' && <span className="text-[9px] font-black bg-white text-black px-2 py-1 tracking-tighter">FECHAMENTO</span>}</div><h4 className="text-xl font-black text-white tracking-widest group-hover:text-zinc-200 italic truncate">{lead.name}</h4></div><span className="text-[10px] font-bold py-1 px-3 bg-black text-zinc-500 uppercase">{lead.ai_score || 0}% IA</span></div>
+                             <div className="space-y-4 mb-8"><p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest flex items-center gap-3"><Briefcase size={12} className="text-zinc-800" /> {lead.product_type}</p><p className="text-lg text-white font-black tracking-tighter italic">R$ {Number(lead.faturamento_estimado || 0).toLocaleString()}</p></div>
+                             <div className="border-t border-zinc-900 pt-6 flex justify-between items-center"><div><p className="text-[8px] text-zinc-800 font-black uppercase mb-1">REGISTRO:</p><p className="text-[10px] text-zinc-600 font-bold italic truncate max-w-[150px]">{lead.registered_by_name?.toUpperCase()}</p></div><div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button onClick={() => deleteLead(lead.id)} className="p-2 text-zinc-800 hover:text-red-500 transition-colors"><Trash2 size={16} /></button><button className="p-2 text-zinc-800 hover:text-white transition-colors"><ChevronRight size={16} /></button></div></div>
                           </div>
                         )}
                       </Draggable>
@@ -224,64 +198,30 @@ const Kanban = () => {
           ))}
         </div>
       </DragDropContext>
-      {schedulingLead && (
-        <ScheduleModal 
-          lead={schedulingLead} 
-          onClose={() => setSchedulingLead(null)} 
-          onSave={(date, time) => {
-            updateMeetingSchedule(schedulingLead.id, date, time)
-            setSchedulingLead(null)
-          }} 
-        />
-      )}
+      {schedulingLead && <ScheduleModal lead={schedulingLead} onClose={() => setSchedulingLead(null)} onSave={(date, time) => { updateMeetingSchedule(schedulingLead.id, date, time); setSchedulingLead(null); }} />}
     </div>
   )
 }
 
-// Agenda Component (Calendar View) - The New Visual Center
+// Agenda Component (Calendar View)
 const Agenda = () => {
   const { leads, loading } = useLeads()
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const meetings = leads.filter(l => l.meeting_date)
-
-  const days = eachDayOfInterval({ 
-    start: startOfWeek(startOfMonth(currentMonth)), 
-    end: endOfWeek(endOfMonth(currentMonth)) 
-  })
-
+  const days = eachDayOfInterval({ start: startOfWeek(startOfMonth(currentMonth)), end: endOfWeek(endOfMonth(currentMonth)) })
   if (loading) return <div className="text-zinc-800 flex items-center justify-center min-h-[50vh] font-black uppercase animate-pulse">COORDENANDO AGENDA...</div>
-
   return (
-    <div className="space-y-16 animate-fade-in-up">
-       <div className="flex items-center justify-between">
-         <div>
-           <h2 className="text-8xl font-black tracking-tighter mb-4 text-white uppercase italic">AGENDA ELITE</h2>
-           <p className="text-[11px] text-zinc-600 uppercase tracking-[0.6em]">SINCRONIZAÇÃO DE ATENDIMENTOS UNICO STUDIO.</p>
-         </div>
-         <div className="flex items-center gap-8 bg-[#1C1B16] border border-[#2A2922] p-4 text-white uppercase font-black text-xs tracking-widest italic">
-            <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="hover:text-zinc-400 p-2"><ChevronRight size={20} className="rotate-180" /></button>
-            <span>{format(currentMonth, 'MMMM yyyy', { locale: ptBR })}</span>
-            <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="hover:text-zinc-400 p-2"><ChevronRight size={20} /></button>
-         </div>
-       </div>
-
+    <div className="space-y-16 animate-fade-in-up uppercase">
+       <div className="flex items-center justify-between"><div><h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic">AGENDA STUDIO</h2><p className="text-[11px] text-zinc-600 uppercase tracking-[0.6em]">SINCRONIZAÇÃO DE ATENDIMENTOS UNICO STUDIO.</p></div>
+         <div className="flex items-center gap-8 bg-[#1C1B16] border border-[#2A2922] p-5 text-white font-black text-xs tracking-widest italic"><button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="hover:text-zinc-400"><ChevronRight size={20} className="rotate-180" /></button><span>{format(currentMonth, 'MMMM yyyy', { locale: ptBR })}</span><button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="hover:text-zinc-400"><ChevronRight size={20} /></button></div></div>
        <div className="grid grid-cols-7 border border-[#2A2922] bg-[#1C1B16]/20">
-         {['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB'].map(d => (
-           <div key={d} className="p-6 text-center text-[10px] font-black text-zinc-600 border-b border-[#2A2922] tracking-[1em]">{d}</div>
-         ))}
-         {days.map((day, i) => {
+         {['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB'].map(d => (<div key={d} className="p-6 text-center text-[10px] font-black text-zinc-700 border-b border-[#2A2922] tracking-[1em]">{d}</div>))}
+         {days.map((day: Date, i: number) => {
            const dayMeetings = meetings.filter(m => isSameDay(new Date(m.meeting_date!), day))
            return (
              <div key={i} className={`min-h-[180px] p-4 border-[#2A2922] ${i % 7 !== 6 ? 'border-r' : ''} border-b relative ${!isSameMonth(day, currentMonth) ? 'opacity-20' : ''}`}>
-               <span className={`text-[10px] font-black ${isSameDay(day, new Date()) ? 'text-white' : 'text-zinc-900 group-hover:text-zinc-600'}`}>{format(day, 'd')}</span>
-               <div className="mt-4 space-y-2">
-                 {dayMeetings.map((m, j) => (
-                   <div key={j} className="bg-white text-black p-3 text-[9px] font-black uppercase tracking-tighter leading-tight flex flex-col gap-1 border-l-4 border-zinc-400">
-                     <span className="text-[8px] opacity-60">{m.meeting_time}H</span>
-                     <span className="truncate">{m.name}</span>
-                   </div>
-                 ))}
-               </div>
+               <span className={`text-[10px] font-black ${isSameDay(day, new Date()) ? 'text-white' : 'text-zinc-800'}`}>{format(day, 'd')}</span>
+               <div className="mt-4 space-y-2">{dayMeetings.map((m, j) => (<div key={j} className="bg-white text-black p-4 text-[9px] font-black tracking-tighter leading-tight flex flex-col gap-1 border-l-4 border-zinc-500 shadow-lg"><span className="text-[8px] opacity-60">{m.meeting_time}H</span><span className="truncate">{m.name?.toUpperCase()}</span></div>))}</div>
              </div>
            )
          })}
