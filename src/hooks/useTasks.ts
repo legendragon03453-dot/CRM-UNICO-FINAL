@@ -5,10 +5,10 @@ export interface Task {
   id: string
   title: string
   description?: string
-  assignee_id: string
-  status: 'pending' | 'completed'
+  assigned_to: string // Fixed column name
+  created_by?: string
+  status: 'pending' | 'completed' | 'overdue'
   created_at: string
-  updated_at: string
 }
 
 export const useTasks = (assigneeId?: string) => {
@@ -19,7 +19,8 @@ export const useTasks = (assigneeId?: string) => {
     try {
       setLoading(true)
       let query = supabase.from('tasks').select('*')
-      if (assigneeId) query = query.eq('assignee_id', assigneeId)
+      // Fixed column name for filtering
+      if (assigneeId) query = query.eq('assigned_to', assigneeId)
       
       const { data, error } = await query.order('created_at', { ascending: false })
       if (error) throw error
@@ -32,9 +33,16 @@ export const useTasks = (assigneeId?: string) => {
   }
 
   const addTask = async (task: Partial<Task>) => {
+    // Ensure we use assigned_to instead of assignee_id if passed
+    const taskData = { ...task } as any;
+    if (taskData.assignee_id) {
+      taskData.assigned_to = taskData.assignee_id;
+      delete taskData.assignee_id;
+    }
+
     const { data, error } = await supabase
       .from('tasks')
-      .insert([task])
+      .insert([taskData])
       .select()
     if (error) {
       console.error('Error adding task:', error)
@@ -46,7 +54,7 @@ export const useTasks = (assigneeId?: string) => {
   const updateTaskStatus = async (id: string, status: 'pending' | 'completed') => {
     const { error } = await supabase
       .from('tasks')
-      .update({ status, updated_at: new Date().toISOString() })
+      .update({ status })
       .eq('id', id)
     if (error) console.error('Error updating task:', error)
   }
