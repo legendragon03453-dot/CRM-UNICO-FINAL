@@ -94,11 +94,21 @@ export const useLeads = () => {
   }
 
   const deleteLead = async (id: string) => {
-    const { error } = await supabase
-      .from('leads')
-      .delete()
-      .eq('id', id)
-    if (error) console.error('Error deleting lead:', error)
+    try {
+      // 1. Clear associated appointments first to avoid FK constraint error
+      await supabase.from('appointments').delete().eq('lead_id', id)
+      
+      // 2. Delete the lead
+      const { error } = await supabase
+        .from('leads')
+        .delete()
+        .eq('id', id)
+      
+      if (error) throw error
+    } catch (error) {
+      console.error('Error deleting lead:', error)
+      alert('Erro ao remover lead: Verifique permissões ou dados vinculados.')
+    }
   }
 
   useEffect(() => {
