@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react
 import { DragDropContext, Droppable, Draggable, DroppableProvided, DraggableProvided, DraggableStateSnapshot } from '@hello-pangea/dnd'
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { LayoutDashboard, Users, Columns, MessageSquare, Calendar as CalendarIcon, Settings as SettingsIcon, LogOut, Plus, Search, Filter, TrendingUp, DollarSign, UserCheck, Globe, Smartphone, Sparkles, Sun, Moon, ThumbsUp, ThumbsDown, Trash2, Clock, CheckCircle2, ChevronRight, X, Flame, AlertCircle, Briefcase, Calendar, User, Mail, Tag, Phone, ShieldCheck, ListTodo, MoreVertical, Edit2 } from 'lucide-react'
+import { LayoutDashboard, Users, Columns, MessageSquare, Calendar as CalendarIcon, Settings as SettingsIcon, LogOut, Plus, Search, Filter, TrendingUp, DollarSign, UserCheck, Globe, Smartphone, Sparkles, Sun, Moon, ThumbsUp, ThumbsDown, Trash2, Clock, CheckCircle2, ChevronRight, X, Flame, AlertCircle, Briefcase, Calendar, User, Mail, Tag, Phone, ShieldCheck, ListTodo, MoreVertical, Edit2, Crown, Trophy, Target } from 'lucide-react'
 import { useLeads, Lead } from './hooks/useLeads'
 import { useTasks, Task } from './hooks/useTasks'
 import { AddLeadModal } from './components/AddLeadModal'
@@ -38,8 +38,8 @@ const Layout = ({ children, profile, onSignOut }: { children: React.ReactNode, p
   const navItems = [
     { icon: <LayoutDashboard size={18} />, label: 'PAINEL', path: '/' },
     ...(isAdmin ? [
-      { icon: <ShieldCheck size={18} />, label: 'ADMIN PAINEL', path: '/admin' },
-      { icon: <SettingsIcon size={18} />, label: 'GESTÃO', path: '/admin/management' }
+      { icon: <ShieldCheck size={18} />, label: 'CENTRAL CEO', path: '/admin' },
+      { icon: <Target size={18} />, label: 'GESTÃO ELITE', path: '/admin/management' }
     ] : []),
     { icon: <Users size={18} />, label: 'ECOSSISTEMA', path: '/leads' },
     { icon: <Columns size={18} />, label: 'PIPELINE', path: '/kanban' },
@@ -52,8 +52,8 @@ const Layout = ({ children, profile, onSignOut }: { children: React.ReactNode, p
     <div className={`flex min-h-screen font-outfit selection:bg-white/10 overflow-x-hidden transition-colors duration-500 bg-[#14130E] text-white`}>
       <aside className={`w-64 fixed left-0 top-0 h-screen border-r border-[#2A2922] bg-[#14130E] flex flex-col p-6 z-50 rounded-none shadow-2xl`}>
         <div className="mb-12 px-2 flex items-center justify-between border-b border-[#2A2922] pb-8"><div><h1 className="text-4xl font-black tracking-tighter leading-none mb-1 text-white italic">UNICO</h1><p className="text-[10px] text-zinc-500 uppercase tracking-[0.3em] font-light">Linear Designer CRM</p></div></div>
-        <nav className="flex-1 flex flex-col gap-1 overflow-y-auto custom-scrollbar">{navItems.map((item) => (<Link key={item.path} to={item.path} className={`flex items-center gap-4 px-4 py-4 rounded-none transition-all duration-200 group ${location.pathname === item.path ? 'bg-white text-black font-black' : 'text-zinc-600 hover:text-white hover:bg-white/5'}`}><span className={`transition-colors duration-200 ${location.pathname === item.path ? 'text-black' : 'group-hover:text-white'}`}>{item.icon}</span><span className="text-[10px] uppercase font-bold tracking-widest">{item.label}</span></Link>))}</nav>
-        <div className="mt-auto pt-8 border-t border-[#2A2922] space-y-6"><div className="px-4 py-4 bg-[#1C1B16] border border-[#2A2922] rounded-none"><div className="flex items-center gap-2 mb-2"><ShieldCheck size={10} className="text-zinc-700" /><p className="text-[9px] text-zinc-600 uppercase font-black tracking-widest">{profile?.role || 'STUDIO AGENT'}</p></div><p className="text-sm font-black tracking-tighter truncate text-white uppercase italic">{profile?.full_name || 'STUDIO AGENT'}</p></div><button onClick={onSignOut} className="flex items-center gap-4 px-4 py-3 w-full text-zinc-700 hover:text-white transition-all group"><LogOut size={18} /><span className="text-xs uppercase font-bold tracking-widest">FECHAR SISTEMA</span></button></div>
+        <nav className="flex-1 flex flex-col gap-1 overflow-y-auto custom-scrollbar">{navItems.map((item) => (<Link key={item.path} to={item.path} className={`flex items-center gap-4 px-4 py-4 rounded-none transition-all duration-200 group ${location.pathname.startsWith(item.path) && item.path !== '/' || (item.path === '/' && location.pathname === '/') ? 'bg-white text-black font-black' : 'text-zinc-600 hover:text-white hover:bg-white/5'}`}><span className={`transition-colors duration-200 ${location.pathname === item.path ? 'text-black' : 'group-hover:text-white'}`}>{item.icon}</span><span className="text-[10px] uppercase font-bold tracking-widest">{item.label}</span></Link>))}</nav>
+        <div className="mt-auto pt-8 border-t border-[#2A2922] space-y-6"><div className="px-4 py-4 bg-[#1C1B16] border border-[#2A2922] rounded-none"><div className="flex items-center gap-2 mb-2"><ShieldCheck size={10} className="text-zinc-700" /><p className="text-[9px] text-zinc-600 uppercase font-black tracking-widest">{profile?.role || 'STUDIO AGENT'}</p></div><p className="text-sm font-black tracking-tighter truncate text-white uppercase italic">{profile?.full_name || 'STUDIO AGENT'}</p></div><button onClick={onSignOut} className="flex items-center gap-4 px-4 py-3 w-full text-zinc-700 hover:text-white transition-all group active:scale-95 transition-all"><LogOut size={18} /><span className="text-xs uppercase font-bold tracking-widest">FECHAR SISTEMA</span></button></div>
       </aside>
       <main className="flex-1 ml-64 p-12 overflow-x-hidden min-h-screen text-white uppercase"><div className="max-w-[1600px] mx-auto">{children}</div></main>
     </div>
@@ -71,60 +71,78 @@ const ScheduleModal = ({ lead, onClose, onSave }: { lead: Lead, onClose: () => v
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
   return (
-     <div className="fixed inset-0 bg-black/98 backdrop-blur-3xl flex items-center justify-center p-4 z-[300] animate-in fade-in duration-300">
-        <div className="w-full max-w-md bg-[#1C1B16] border border-[#2A2922] p-12 space-y-10 shadow-2xl">
-           <div className="space-y-2"><h3 className="text-2xl font-black text-white italic tracking-tighter">AGENDAMENTO ELITE</h3><p className="text-[10px] text-zinc-700 font-bold tracking-widest uppercase">REUNIÃO ESTRATÉGICA PARA {lead.name}</p></div>
-           <div className="space-y-6">
-             <div className="space-y-2"><label className="text-[10px] font-black text-zinc-400 tracking-widest uppercase">DATA DO ENCONTRO</label><input type="date" className="w-full bg-[#14130E] border border-[#2A2922] p-5 text-white text-xs font-black outline-none focus:border-white transition-all uppercase" value={date} onChange={e => setDate(e.target.value)} /></div>
-             <div className="space-y-2"><label className="text-[10px] font-black text-zinc-400 tracking-widest uppercase">HORÁRIO EXCLUSIVO</label><input type="time" className="w-full bg-[#14130E] border border-[#2A2922] p-5 text-white text-xs font-black outline-none focus:border-white transition-all" value={time} onChange={e => setTime(e.target.value)} /></div>
-           </div>
-           <div className="flex gap-4 pt-10"><button onClick={onClose} className="flex-1 py-5 border border-[#2A2922] text-[10px] font-black text-zinc-700 hover:text-white transition-all uppercase">CANCELAR</button><button onClick={() => onSave(date, time)} className="flex-2 py-5 bg-white text-black text-[10px] font-black tracking-widest hover:bg-zinc-200 transition-all shadow-xl uppercase">CONFIRMAR AGENDA</button></div>
-        </div>
-     </div>
+     <div className="fixed inset-0 bg-black/98 backdrop-blur-3xl flex items-center justify-center p-4 z-[300] animate-in fade-in duration-300"><div className="w-full max-md bg-[#1C1B16] border border-[#2A2922] p-12 space-y-10 shadow-2xl"><div className="space-y-2"><h3 className="text-2xl font-black text-white italic tracking-tighter">AGENDAMENTO ELITE</h3><p className="text-[10px] text-zinc-700 font-bold tracking-widest uppercase">REUNIÃO ESTRATÉGICA PARA {lead.name}</p></div><div className="space-y-6"><div className="space-y-2"><label className="text-[10px] font-black text-zinc-400 tracking-widest uppercase">DATA DO ENCONTRO</label><input type="date" className="w-full bg-[#14130E] border border-[#2A2922] p-5 text-white text-xs font-black outline-none focus:border-white transition-all uppercase" value={date} onChange={e => setDate(e.target.value)} /></div><div className="space-y-2"><label className="text-[10px] font-black text-zinc-400 tracking-widest uppercase">HORÁRIO EXCLUSIVO</label><input type="time" className="w-full bg-[#14130E] border border-[#2A2922] p-5 text-white text-xs font-black outline-none focus:border-white transition-all" value={time} onChange={e => setTime(e.target.value)} /></div></div><div className="flex gap-4 pt-10"><button onClick={onClose} className="flex-1 py-5 border border-[#2A2922] text-[10px] font-black text-zinc-700 hover:text-white transition-all uppercase">CANCELAR</button><button onClick={() => onSave(date, time)} className="flex-2 py-5 bg-white text-black text-[10px] font-black tracking-widest hover:bg-zinc-200 transition-all shadow-xl uppercase">CONFIRMAR AGENDA</button></div></div></div>
   )
 }
 
 // --- ADMIN DASHBOARD ---
 const AdminDashboard = () => {
-  const { leads } = useLeads()
+  const { leads, loading } = useLeads()
   const { tasks } = useTasks()
   const [employees, setEmployees] = useState<any[]>([])
+
   useEffect(() => { supabase.from('profiles').select('*').then(({ data }) => setEmployees(data || [])) }, [])
+
+  const salesByOwner = employees.map(emp => {
+    const soldLeads = leads.filter(l => l.owner_id === emp.id && l.status === 'vendido')
+    const totalValue = soldLeads.reduce((acc, curr) => acc + (Number(curr.faturamento_estimado) || 0), 0)
+    return { ...emp, soldLeads: soldLeads.length, totalValue }
+  }).sort((a, b) => b.totalValue - a.totalValue)
+
   const faturamentoTotal = leads.reduce((acc, curr) => acc + (Number(curr.faturamento_estimado) || 0), 0)
   const completedTasks = tasks.filter(t => t.status === 'completed').length
+
   const stats = [
-    { label: 'FATURAMENTO GLOBAL', value: `R$ ${faturamentoTotal.toLocaleString()}`, icon: <DollarSign />, color: 'white' },
-    { label: 'LEADS TOTAIS', value: leads.length, icon: <Users />, color: 'white' },
-    { label: 'QUADRO DE FUNCIONÁRIOS', value: employees.length, icon: <User />, color: 'white' },
-    { label: 'tasks concluídas', value: `${completedTasks} / ${tasks.length}`, icon: <CheckCircle2 />, color: 'white' }
+    { label: 'EQUITY CONVERSÃO', value: `R$ ${faturamentoTotal.toLocaleString()}`, icon: <DollarSign />, color: 'white' },
+    { label: 'FLUXO MONITORADO', value: leads.length, icon: <Users />, color: 'white' },
+    { label: 'QUADRO ELITE', value: employees.length, icon: <User />, color: 'white' },
+    { label: 'EXECUÇÃO OPERACIONAL', value: `${completedTasks} / ${tasks.length}`, icon: <CheckCircle2 />, color: 'white' }
   ]
+
+  if (loading) return <div className="text-zinc-900 flex items-center justify-center min-h-[50vh] font-black uppercase anime-pulse text-[12px] tracking-[1em]">LENDO SISTEMA...</div>
+
   return (
     <div className="space-y-16 animate-fade-in-up uppercase">
-       <div className="flex items-center justify-between"><div><h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic">ADMIN PAINEL</h2><p className="text-[11px] text-zinc-600 uppercase tracking-[0.6em]">VISÃO ESTRATÉGICA UNICO STUDIO.</p></div></div>
+       <div className="flex items-center justify-between"><div><h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic">CENTRAL CEO</h2><p className="text-[11px] text-zinc-600 uppercase tracking-[0.6em] font-light">VISÃO ANALÍTICA E ESTRATÉGICA DO ESTÚDIO.</p></div></div>
        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {stats.map((stat, i) => (
              <div key={i} className="bg-[#1C1B16] border border-[#2A2922] p-10 flex flex-col gap-10 group hover:bg-[#2A2922] transition-all shadow-2xl relative overflow-hidden">
-                <div className="flex justify-between items-center"><span className="p-4 bg-white text-black group-hover:scale-110 transition-all shadow-inner">{stat.icon}</span><p className="text-[10px] font-black tracking-[0.3em] text-zinc-700">STUDIO DATA</p></div>
+                <div className="flex justify-between items-center"><span className="p-4 bg-white text-black group-hover:scale-110 transition-all shadow-inner">{stat.icon}</span><p className="text-[10px] font-black tracking-[0.3em] text-zinc-700">HQ DATA</p></div>
                 <div><p className="text-[10px] font-bold text-zinc-600 tracking-[0.2em] mb-2">{stat.label}</p><h3 className="text-3xl font-black text-white italic tracking-tighter">{stat.value}</h3></div>
              </div>
           ))}
        </div>
-       <div className="bg-[#1C1B16] border border-[#2A2922] p-12 shadow-2xl space-y-10">
-          <h3 className="text-[10px] font-black border-b border-[#2A2922] pb-6 mb-10 text-zinc-700 tracking-widest">MAPA DE PERFORMANCE DA EQUIPE</h3>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-             {employees.map(emp => {
-               const empTasks = tasks.filter(t => t.assignee_id === emp.id)
-               const empCompleted = empTasks.filter(t => t.status === 'completed').length
-               return (
-                 <div key={emp.id} className="p-8 border border-[#2A2922] bg-[#14130E] space-y-6 hover:border-zinc-700 transition-all group">
-                    <div className="flex justify-between items-start">
-                       <div><h4 className="text-2xl font-black text-white italic tracking-tighter uppercase truncate">{emp.full_name}</h4><p className="text-[8px] text-zinc-700 font-bold tracking-[0.4em] mt-1">{emp.role}</p></div>
-                       <div className="text-right text-[10px] font-black italic">{empCompleted}/{empTasks.length} TASKS</div>
+
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="bg-[#1C1B16] border border-[#2A2922] p-12 shadow-2xl space-y-10">
+             <div className="flex items-center gap-4 border-b border-[#2A2922] pb-6"><Trophy size={18} className="text-white" /><h3 className="text-[10px] font-black text-zinc-700 tracking-widest uppercase">RANKING DE CONVERSÃO (QUEM MAIS VENDEU)</h3></div>
+             <div className="space-y-6">
+                {salesByOwner.slice(0, 5).map((owner, i) => (
+                  <div key={owner.id} className="flex items-center gap-8 p-6 bg-black/40 border border-[#2A2922] group hover:border-white transition-all shadow-xl relative">
+                     <div className="w-12 h-12 bg-zinc-900 border border-[#2A2922] flex items-center justify-center font-black text-white italic text-xl">{i + 1}</div>
+                     <div className="flex-1"><h4 className="text-xl font-black text-white italic truncate">{owner.full_name}</h4><p className="text-[8px] text-zinc-700 font-bold tracking-widest mt-1">VOL: {owner.soldLeads} VENDAS</p></div>
+                     <div className="text-right"><p className="text-lg font-black text-white italic tracking-tighter">R$ {owner.totalValue.toLocaleString()}</p></div>
+                  </div>
+                ))}
+             </div>
+          </div>
+          <div className="bg-[#1C1B16] border border-[#2A2922] p-12 shadow-2xl space-y-10">
+             <div className="flex items-center gap-4 border-b border-[#2A2922] pb-6"><ListTodo size={18} className="text-white" /><h3 className="text-[10px] font-black text-zinc-700 tracking-widest uppercase">MONITORAMENTO DE EXECUÇÃO (TASKS)</h3></div>
+             <div className="space-y-2 max-h-[600px] overflow-y-auto custom-scrollbar">
+                {employees.map(emp => {
+                  const empTasks = tasks.filter(t => t.assignee_id === emp.id)
+                  const empCompleted = empTasks.filter(t => t.status === 'completed').length
+                  return (
+                    <div key={emp.id} className="p-6 border border-[#2A2922] hover:bg-white/5 transition-all">
+                       <div className="flex justify-between items-center mb-3">
+                          <p className="text-xs font-black text-white italic">{emp.full_name}</p>
+                          <p className="text-[9px] font-black text-zinc-600">{empCompleted}/{empTasks.length} MISSÕES</p>
+                       </div>
+                       <div className="w-full h-1 bg-zinc-900"><div className="h-full bg-white" style={{ width: `${(empCompleted/empTasks.length) * 100 || 0}%` }}></div></div>
                     </div>
-                    <div className="w-full h-1 bg-zinc-900 overflow-hidden"><div className="h-full bg-white transition-all duration-1000" style={{ width: `${(empCompleted/empTasks.length) * 100 || 0}%` }}></div></div>
-                 </div>
-               )
-             })}
+                  )
+                })}
+             </div>
           </div>
        </div>
     </div>
@@ -137,34 +155,65 @@ const AdminManagement = () => {
   const { addTask } = useTasks()
   const [selectedEmp, setSelectedEmp] = useState<any>(null)
   const [taskTitle, setTaskTitle] = useState('')
-  const fetchEmployees = async () => { const { data } = await supabase.from('profiles').select('*'); setEmployees(data || []) }
+  const [editEmp, setEditEmp] = useState<any>(null)
+
+  const fetchEmployees = async () => { const { data } = await supabase.from('profiles').select('*').order('full_name'); setEmployees(data || []) }
   useEffect(() => { fetchEmployees() }, [])
-  const updateEmpRole = async (id: string, role: string) => { await supabase.from('profiles').update({ role }).eq('id', id); fetchEmployees() }
+
+  const handleUpdateEmp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editEmp) return
+    const { error } = await supabase.from('profiles').update({
+       role: editEmp.role,
+       tag: editEmp.tag,
+       points_pos: editEmp.points_pos.split(',').map((s: string) => s.trim()).filter(Boolean),
+       points_neg: editEmp.points_neg.split(',').map((s: string) => s.trim()).filter(Boolean)
+    }).eq('id', editEmp.id)
+    if (!error) { setEditEmp(null); fetchEmployees(); alert('Perfil Sincronizado.'); }
+  }
+
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedEmp || !taskTitle) return
     await addTask({ title: taskTitle.toUpperCase(), assignee_id: selectedEmp.id, status: 'pending' })
     setTaskTitle('')
     setSelectedEmp(null)
-    alert('Task Atribuída.')
+    alert('Ordem Enviada.');
   }
+
   return (
     <div className="space-y-16 animate-fade-in-up uppercase">
-       <div className="flex items-center justify-between"><div><h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic">GESTÃO DE EQUIPE</h2><p className="text-[11px] text-zinc-600 uppercase tracking-[0.6em]">CONTROLE DE CAPITAL HUMANO UNICO STUDIO.</p></div></div>
-       <div className="bg-[#1C1B16] border border-[#2A2922] p-12 shadow-2xl relative">
-          <div className="overflow-x-auto"><table className="w-full text-left border-collapse"><thead className="text-zinc-700 text-[10px] uppercase font-black border-b border-[#2A2922]"><tr><th className="px-10 py-8">OPERADOR</th><th className="px-10 py-8">CARGO</th><th className="px-10 py-8">PONTOS</th><th className="px-10 py-8 text-right">AÇÕES</th></tr></thead>
+       <div className="flex items-center justify-between"><div><h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic">GESTÃO ELITE</h2><p className="text-[11px] text-zinc-600 uppercase tracking-[0.6em] font-light">CONTROLE DE RECURSOS E ATRIBUIÇÕES DO ESTÚDIO.</p></div></div>
+       <div className="bg-[#1C1B16] border border-[#2A2922] p-12 shadow-2xl">
+          <div className="overflow-x-auto"><table className="w-full text-left border-collapse"><thead className="text-zinc-700 text-[10px] uppercase font-black border-b border-[#2A2922]"><tr><th className="px-10 py-8">OPERADOR / TAG</th><th className="px-10 py-8">CARGO</th><th className="px-10 py-8">TASKS</th><th className="px-10 py-8 text-right">AÇÕES</th></tr></thead>
             <tbody className="divide-y divide-zinc-900">{employees.map(emp => (
-              <tr key={emp.id} className="hover:bg-white/5"><td className="px-10 py-8"><div className="flex items-center gap-6"><div className="w-14 h-14 bg-black border border-zinc-900 flex items-center justify-center text-white font-black">{emp.full_name?.[0]}</div><div><p className="text-xl font-black text-white italic">{emp.full_name}</p><p className="text-[8px] text-zinc-700 italic tracking-[0.2em]">{emp.tag}</p></div></div></td>
-                <td className="px-10 py-8"><select className="bg-transparent border border-zinc-900 p-2 text-[10px] font-black text-zinc-600 focus:text-white focus:outline-none cursor-pointer" value={emp.role} onChange={e => updateEmpRole(emp.id, e.target.value)}><option value="CEO">CEO</option><option value="Asessor">Asessor</option><option value="Social Selling">Social Selling</option><option value="Convidado">Convidado</option></select></td>
-                <td className="px-10 py-8 max-w-xs space-y-2"><p className="text-[10px] font-black text-green-500 truncate">POS: {emp.points_pos?.join(', ')}</p><p className="text-[10px] font-black text-red-500 truncate">NEG: {emp.points_neg?.join(', ')}</p></td>
-                <td className="px-10 py-8 text-right space-x-4"><button onClick={() => setSelectedEmp(emp)} className="text-[10px] font-black p-3 border border-zinc-900 hover:text-white transition-colors uppercase">ADICIONAR TASK</button></td></tr>
+              <tr key={emp.id} className="hover:bg-white/5 transition-colors"><td className="px-10 py-8"><div className="flex items-center gap-6"><div className="w-14 h-14 bg-black border border-zinc-900 flex items-center justify-center text-white font-black italic">{emp.full_name?.[0]}</div><div><p className="text-xl font-black text-white italic">{emp.full_name}</p><p className="text-[10px] text-zinc-800 italic uppercase mt-1">TAG: {emp.tag || 'PENDENTE'}</p></div></div></td>
+                <td className="px-10 py-8"><span className="text-[10px] font-black px-4 py-2 border border-zinc-800 bg-black text-zinc-600 uppercase">{emp.role}</span></td>
+                <td className="px-10 py-8"><button onClick={() => setSelectedEmp(emp)} className="flex items-center gap-3 text-[10px] font-black text-white bg-zinc-900 px-6 py-3 border border-zinc-800 hover:bg-white hover:text-black transition-all active:scale-95"><Plus size={14} /> ENVIAR TASK</button></td>
+                <td className="px-10 py-8 text-right"><button onClick={() => setEditEmp({ ...emp, points_pos: emp.points_pos?.join(', ') || '', points_neg: emp.points_neg?.join(', ') || '' })} className="p-4 border border-zinc-900 text-zinc-700 hover:text-white transition-all"><Edit2 size={18} /></button></td></tr>
             ))}</tbody></table></div>
        </div>
+
+       {editEmp && (
+          <div className="fixed inset-0 bg-black/98 flex items-center justify-center p-4 z-[400] animate-in fade-in transition-all">
+             <form onSubmit={handleUpdateEmp} className="w-full max-w-2xl bg-[#1C1B16] border border-[#2A2922] p-16 space-y-12 shadow-2xl relative">
+                <div className="flex justify-between items-start"><div><h3 className="text-4xl font-black text-white italic tracking-tighter">AJUSTAR OPERADOR</h3><p className="text-[11px] text-zinc-600 tracking-widest font-black uppercase mt-1">ID: {editEmp.full_name}</p></div><button type="button" onClick={() => setEditEmp(null)}><X size={32} className="text-zinc-800 hover:text-white" /></button></div>
+                <div className="grid grid-cols-2 gap-8">
+                   <div className="space-y-2"><label className="text-[10px] font-black text-zinc-600 tracking-widest">FUNÇÃO / CARGO</label><select className="w-full bg-[#14130E] border border-[#2A2922] p-5 text-white font-black text-xs outline-none focus:border-white transition-all" value={editEmp.role} onChange={e => setEditEmp({...editEmp, role: e.target.value})}><option value="CEO">CEO</option><option value="Asessor">Asessor</option><option value="Social Selling">Social Selling</option><option value="Convidado">Convidado</option></select></div>
+                   <div className="space-y-2"><label className="text-[10px] font-black text-zinc-600 tracking-widest">TAG IDENTIFICADORA</label><input className="w-full bg-[#14130E] border border-[#2A2922] p-5 text-white font-black text-xs outline-none focus:border-white transition-all uppercase" value={editEmp.tag} onChange={e => setEditEmp({...editEmp, tag: e.target.value})} /></div>
+                   <div className="col-span-2 space-y-2"><label className="text-[10px] font-black text-zinc-600 tracking-widest">PONTOS FORTES (VÍRGULA)</label><input className="w-full bg-[#14130E] border border-[#2A2922] p-5 text-white font-black text-xs outline-none focus:border-white transition-all uppercase" value={editEmp.points_pos} onChange={e => setEditEmp({...editEmp, points_pos: e.target.value})} /></div>
+                   <div className="col-span-2 space-y-2"><label className="text-[10px] font-black text-zinc-600 tracking-widest">PONTOS A MELHORAR (VÍRGULA)</label><input className="w-full bg-[#14130E] border border-[#2A2922] p-5 text-white font-black text-xs outline-none focus:border-white transition-all uppercase" value={editEmp.points_neg} onChange={e => setEditEmp({...editEmp, points_neg: e.target.value})} /></div>
+                </div>
+                <button type="submit" className="w-full bg-white text-black p-8 font-black text-xs tracking-[0.5em] hover:bg-zinc-200 transition-all uppercase shadow-xl">SINCRONIZAR HIERARQUIA</button>
+             </form>
+          </div>
+       )}
+
        {selectedEmp && (
           <div className="fixed inset-0 bg-black/98 flex items-center justify-center p-4 z-[400] animate-in fade-in transition-all">
              <form onSubmit={handleAddTask} className="w-full max-w-lg bg-[#1C1B16] border border-[#2A2922] p-12 space-y-12 shadow-2xl relative">
-                <div className="flex justify-between items-start mb-6"><div><h3 className="text-3xl font-black text-white italic tracking-tighter">ATRIBUIR MISSÃO</h3><p className="text-[10px] text-zinc-700 tracking-[0.2em] font-bold">PARA: {selectedEmp.full_name}</p></div><button type="button" onClick={() => setSelectedEmp(null)}><X size={32} className="text-zinc-800 hover:text-white transition-colors" /></button></div>
-                <div className="space-y-12"><div className="space-y-4"><label className="text-[10px] font-black text-zinc-500 tracking-widest uppercase">DESCRIÇÃO DA TASK</label><input required className="w-full bg-[#14130E] border border-[#2A2922] p-6 text-white text-xs font-black outline-none focus:border-white transition-all uppercase" value={taskTitle} onChange={e => setTaskTitle(e.target.value)} placeholder="EX: ANALISAR LEADS DO CANAL ELITE" /></div><button type="submit" className="w-full bg-white text-black p-8 font-black text-xs uppercase tracking-[0.5em] hover:bg-zinc-200 shadow-xl active:scale-95">ENVIAR ORDEM DE EXECUÇÃO</button></div>
+                <div className="flex justify-between items-start mb-6"><div><h3 className="text-3xl font-black text-white italic tracking-tighter">ORDEM DE EXECUÇÃO</h3><p className="text-[10px] text-zinc-700 tracking-[0.2em] font-bold uppercase">ALVO: {selectedEmp.full_name}</p></div><button type="button" onClick={() => setSelectedEmp(null)}><X size={32} className="text-zinc-800 hover:text-white" /></button></div>
+                <div className="space-y-12"><div className="space-y-4"><label className="text-[10px] font-black text-zinc-500 tracking-widest uppercase">DEFINIÇÃO DA TASK</label><input required className="w-full bg-[#14130E] border border-[#2A2922] p-6 text-white text-xs font-black outline-none focus:border-white transition-all uppercase" value={taskTitle} onChange={e => setTaskTitle(e.target.value)} placeholder="EX: ANALISAR LEADS DO CANAL ELITE" /></div><button type="submit" className="w-full bg-white text-black p-8 font-black text-xs uppercase tracking-[0.5em] hover:bg-zinc-200 shadow-xl active:scale-95">ENVIAR COMANDO</button></div>
              </form>
           </div>
        )}
@@ -175,14 +224,14 @@ const AdminManagement = () => {
 // --- TASKS PAGE (EMPLOYEE VIEW) ---
 const Tasks = ({ profile }: { profile: any }) => {
   const { tasks, updateTaskStatus } = useTasks(profile?.id)
-  const handleSave = async (id: string, currentStatus: string) => { await updateTaskStatus(id, currentStatus === 'completed' ? 'pending' : 'completed'); alert('Progressivo Sincronizado com CEO.') }
+  const handleSave = async (id: string, currentStatus: string) => { await updateTaskStatus(id, currentStatus === 'completed' ? 'pending' : 'completed'); alert('Status Sincronizado com HQ.') }
   return (
     <div className="space-y-16 animate-fade-in-up uppercase">
-       <div className="flex items-center justify-between"><div><h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic">PULSO DE EXECUÇÃO</h2><p className="text-[11px] text-zinc-600 uppercase tracking-[0.6em]">SUAS TASKS LINEARES UNICO STUDIO.</p></div></div>
+       <div className="flex items-center justify-between"><div><h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic">PULSO DE EXECUÇÃO</h2><p className="text-[11px] text-zinc-600 uppercase tracking-[0.6em] font-light">SUAS DIRETRIZES OPERACIONAIS UNICO STUDIO.</p></div></div>
        <div className="grid grid-cols-1 gap-8">{tasks.map(task => (
            <div key={task.id} className="bg-[#1C1B16] border border-[#2A2922] p-10 flex flex-col md:flex-row items-center gap-12 group hover:bg-[#2A2922] transition-all shadow-xl">
-              <div className="flex items-center gap-8 flex-1"><div className="w-14 h-14 border border-[#2A2922] flex items-center justify-center text-zinc-800 group-hover:text-white transition-all"><ListTodo size={24} /></div><div><h4 className={`text-3xl font-black tracking-widest italic uppercase transition-all ${task.status === 'completed' ? 'text-zinc-800 line-through' : 'text-white'}`}>{task.title}</h4><p className="text-[9px] text-zinc-700 tracking-[0.5em] mt-2 italic uppercase">MISSÃO ATRIBUÍDA PELA ADMINISTRAÇÃO</p></div></div>
-              <div className="flex items-center gap-8"><button onClick={() => handleSave(task.id, task.status)} className={`px-12 py-6 text-[10px] font-black uppercase tracking-[0.5em] transition-all ${task.status === 'completed' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'bg-white text-black hover:bg-zinc-200'}`}>{task.status === 'completed' ? 'CONCLUÍDA' : 'MARCAR COMO FEITA'}</button></div>
+              <div className="flex items-center gap-8 flex-1"><div className="w-14 h-14 border border-[#2A2922] flex items-center justify-center text-zinc-800 group-hover:text-white transition-all"><ListTodo size={24} /></div><div><h4 className={`text-3xl font-black tracking-widest italic uppercase transition-all ${task.status === 'completed' ? 'text-zinc-800 line-through' : 'text-white'}`}>{task.title}</h4><p className="text-[9px] text-zinc-700 tracking-[0.5em] mt-2 italic uppercase">ORDEM ATRIBUÍDA PELA HQ</p></div></div>
+              <div className="flex items-center gap-8"><button onClick={() => handleSave(task.id, task.status)} className={`px-12 py-6 text-[10px] font-black uppercase tracking-[0.5em] transition-all ${task.status === 'completed' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'bg-white text-black hover:bg-zinc-200 shadow-lg active:scale-95'}`}>{task.status === 'completed' ? 'CONCLUÍDA' : 'EXECUTAR TASK'}</button></div>
            </div>
        ))}{tasks.length === 0 && <div className="py-40 text-center animate-pulse"><p className="text-[11px] text-zinc-900 font-black uppercase tracking-[1em]">SEM ORDENS DE SERVIÇO PENDENTES.</p></div>}</div>
     </div>
@@ -194,7 +243,7 @@ const DashboardUnified = ({ profile }: { profile: any }) => {
   const { leads, loading } = useLeads()
   const { tasks } = useTasks(profile?.id)
   const stats = [{ label: 'PIPELINE ATIVO', value: leads.length, icon: <Users size={18} /> }, { label: 'SUAS TASKS', value: tasks.filter(t => t.status === 'pending').length, icon: <ListTodo size={18} /> }, { label: 'EQUITY ESTIMADO', value: `R$ ${leads.reduce((acc, curr) => acc + (Number(curr.faturamento_estimado) || 0), 0).toLocaleString()}`, icon: <DollarSign size={18} /> }, { label: 'OPORTUNIDADES ELITE', value: leads.filter(l => (l.ai_score || 0) > 80).length, icon: <Sparkles size={18} /> }]
-  if (loading) return <div className="text-zinc-900 flex items-center justify-center min-h-[50vh] font-black uppercase animate-pulse text-[10px] tracking-[1em]">SINCRONIZANDO...</div>
+  if (loading) return <div className="text-zinc-900 flex items-center justify-center min-h-[50vh] font-black uppercase animate-pulse text-[12px] tracking-[1em]">SINCRONIZANDO PORTAL...</div>
   return (
     <div className="space-y-16 animate-fade-in-up uppercase">
       <div className="flex items-center justify-between"><h2 className="text-8xl font-black tracking-tighter mb-2 text-white italic">PORTAL STUDIO</h2></div>
