@@ -25,56 +25,55 @@ export const Login = () => {
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#0A0A0A] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background Glow */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#1E3A8A]/10 rounded-full blur-[120px] animate-pulse"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-900/10 rounded-full blur-[120px] animate-pulse delay-700"></div>
+    <div className="min-h-screen w-full bg-[#000000] flex items-center justify-center p-4 relative overflow-hidden font-family-outfit">
+      {/* Dynamic Background Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#D8B4FE]/5 rounded-full blur-[180px] animate-pulse"></div>
 
-      <div className="w-full max-w-md animate-in fade-in zoom-in duration-500">
-        <div className="card bg-[#111111]/80 backdrop-blur-xl p-10 border-[#262626] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-          <div className="text-center mb-10">
-            <h1 className="text-5xl font-black text-[#F5F5F5] tracking-tighter mb-2">UNICO</h1>
-            <p className="text-[#A0A0A0] text-sm uppercase tracking-widest font-semibold flex items-center justify-center gap-2">
-              <Sparkles size={14} className="text-blue-500" />
-              Design Studio CRM
+      <div className="w-full max-w-lg animate-fade-in-up relative">
+        <div className="glass p-16 rounded-[40px] border-white/5 shadow-[0_40px_100px_rgba(0,0,0,1)]">
+          <div className="text-center mb-16">
+            <h1 className="text-7xl font-black text-[#FFFFFF] tracking-tighter mb-4 leading-none">UNICO</h1>
+            <p className="text-[#888888] text-[10px] uppercase tracking-[0.6em] font-light flex items-center justify-center gap-3">
+              <Sparkles size={12} className="text-[#D8B4FE]" />
+              Designer Studio CRM
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-[#A0A0A0] uppercase tracking-wider ml-1">Acesso do Time</label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A0A0A0]"><Mail size={18} /></span>
+          <form onSubmit={handleLogin} className="space-y-8">
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em] ml-1">Usuário Elite</label>
+              <div className="relative group">
+                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[#333] group-focus-within:text-[#D8B4FE] transition-colors"><Mail size={18} /></span>
                 <input 
                   type="email" 
                   required
-                  placeholder="seu@email.com"
-                  className="w-full bg-[#1A1A1A] border border-[#262626] rounded-xl pl-12 pr-4 py-3.5 text-[#F5F5F5] focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/20 transition-all"
+                  placeholder="EMAIL@STUDIO.COM"
+                  className="w-full bg-white/[0.02] border border-white/5 rounded-2xl pl-16 pr-6 py-5 text-[11px] font-bold text-[#FFFFFF] tracking-widest focus:outline-none focus:border-[#D8B4FE]/30 focus:bg-white/[0.04] transition-all placeholder:text-[#222]"
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex justify-between ml-1">
-                <label className="text-xs font-bold text-[#A0A0A0] uppercase tracking-wider">Chave de Segurança</label>
-                <a href="#" className="text-[10px] text-blue-500 hover:text-blue-400 font-bold uppercase">Esqueceu?</a>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center px-1">
+                <label className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em]">Chave de Acesso</label>
+                <a href="#" className="text-[9px] text-[#888888] hover:text-[#FFFFFF] font-black uppercase tracking-widest transition-colors">Esqueceu?</a>
               </div>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A0A0A0]"><Lock size={18} /></span>
+              <div className="relative group">
+                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[#333] group-focus-within:text-[#D8B4FE] transition-colors"><Lock size={18} /></span>
                 <input 
                   type="password" 
                   required
                   placeholder="••••••••"
-                  className="w-full bg-[#1A1A1A] border border-[#262626] rounded-xl pl-12 pr-4 py-3.5 text-[#F5F5F5] focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/20 transition-all"
+                  className="w-full bg-white/[0.02] border border-white/5 rounded-2xl pl-16 pr-6 py-5 text-[11px] font-bold text-[#FFFFFF] tracking-widest focus:outline-none focus:border-[#D8B4FE]/30 focus:bg-white/[0.04] transition-all placeholder:text-[#222]"
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
             </div>
 
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-xs p-3 rounded-lg flex items-center gap-2">
-                <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+              <div className="bg-red-500/5 border border-red-500/10 text-red-500/80 text-[10px] p-4 rounded-xl font-black uppercase tracking-widest flex items-center gap-3">
+                <div className="w-1 h-1 bg-red-500 rounded-full animate-ping"></div>
                 {error}
               </div>
             )}
@@ -82,21 +81,21 @@ export const Login = () => {
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full bg-[#1E3A8A] text-white py-4 rounded-xl font-black text-lg hover:bg-[#2563EB] transition-all transform hover:scale-[1.01] active:scale-95 shadow-xl shadow-blue-900/30 flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full bg-[#FFFFFF] text-[#000000] py-6 rounded-2xl font-black text-xs uppercase tracking-[0.3em] hover:bg-[#D8B4FE] transition-all duration-500 transform hover:scale-[1.02] active:scale-95 shadow-2xl shadow-white/5 flex items-center justify-center gap-3 disabled:opacity-20"
             >
               {loading ? (
-                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                <div className="w-5 h-5 border-2 border-black/10 border-t-black rounded-full animate-spin"></div>
               ) : (
                 <>
-                  <LogIn size={20} />
-                  ACESSAR SISTEMA
+                  <LogIn size={16} strokeWidth={3} />
+                  Acessar Ecossistema
                 </>
               )}
             </button>
           </form>
 
-          <p className="text-center text-[10px] text-[#262626] font-bold uppercase mt-8 tracking-tighter">
-            Plataforma UNICO © Todos os direitos reservados.
+          <p className="text-center text-[9px] text-[#222] font-black uppercase mt-16 tracking-[0.5em]">
+            UNICO Design System © MMXXIV
           </p>
         </div>
       </div>

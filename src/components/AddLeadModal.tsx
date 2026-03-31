@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import { X, User, Globe, Smartphone, DollarSign, Calendar, Clock } from 'lucide-react'
+import { X, User, Instagram, Phone, DollarSign, Calendar, Clock, Sparkles } from 'lucide-react'
 
 interface AddLeadModalProps {
   onClose: () => void
-  onAdd: (lead: any) => Promise<void>
+  onAdd: (lead: any) => void
 }
 
 export const AddLeadModal = ({ onClose, onAdd }: AddLeadModalProps) => {
@@ -17,115 +17,148 @@ export const AddLeadModal = ({ onClose, onAdd }: AddLeadModalProps) => {
     status: 'iniciou_atendimento'
   })
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    await onAdd({
+    onAdd({
       ...formData,
-      faturamento_estimado: parseFloat(formData.faturamento_estimado) || 0
+      faturamento_estimado: Number(formData.faturamento_estimado)
     })
-    onClose()
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-[#111111] border border-[#262626] w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-        <div className="flex items-center justify-between p-6 border-b border-[#262626]">
-          <h3 className="text-xl font-bold text-[#F5F5F5]">Novo Lead Elite</h3>
-          <button onClick={onClose} className="text-[#A0A0A0] hover:text-[#F5F5F5] transition-colors">
-            <X size={20} />
+    <div className="fixed inset-0 bg-[#000000]/90 backdrop-blur-3xl flex items-center justify-center p-4 z-50 animate-in fade-in duration-500 overflow-y-auto">
+      <div className="w-full max-w-2xl glass rounded-[40px] border-white/5 shadow-[0_40px_100px_rgba(0,0,0,1)] relative overflow-hidden flex flex-col max-h-[90vh]">
+        
+        {/* Glow Header */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#D8B4FE]/30 to-transparent"></div>
+
+        <div className="p-12 pb-6 flex justify-between items-start">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-1.5 h-1.5 bg-[#D8B4FE] rounded-full glow-purple"></div>
+              <h2 className="text-sm font-black text-[#FFFFFF] tracking-[0.4em] uppercase">Novo Lead Premium</h2>
+            </div>
+            <p className="text-[10px] text-[#888888] font-light tracking-[0.2em] uppercase">Qualificação Elite no ecossistema UNICO.</p>
+          </div>
+          <button 
+            onClick={onClose}
+            className="text-[#333] hover:text-[#FFFFFF] glass border-transparent hover:border-white/10 p-4 rounded-full transition-all group active:scale-90"
+          >
+            <X size={18} className="group-hover:rotate-90 transition-transform" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-[#A0A0A0] uppercase tracking-wider">Nome Completo</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0A0A0]"><User size={16} /></span>
+        <form onSubmit={handleSubmit} className="p-12 pt-6 space-y-10 overflow-y-auto scroll-hide">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+            {/* Nome */}
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em] ml-1">Identificação Designer</label>
+              <div className="relative group">
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#333] group-focus-within:text-[#D8B4FE] transition-colors"><User size={16} /></span>
                 <input 
-                  type="text" name="name" required
-                  placeholder="Nome do cliente"
-                  className="w-full bg-[#1A1A1A] border border-[#262626] rounded-lg pl-10 pr-3 py-2 text-[#F5F5F5] focus:outline-none focus:border-[#1E3A8A] transition-colors"
-                  onChange={handleChange}
+                  type="text" 
+                  required
+                  placeholder="NOME COMPLETO"
+                  className="w-full bg-transparent border-b border-white/5 py-4 pl-8 text-[11px] font-bold text-[#FFFFFF] tracking-widest focus:outline-none focus:border-[#D8B4FE]/50 transition-all placeholder:text-[#222]"
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-[#A0A0A0] uppercase tracking-wider">Instagram</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0A0A0]"><Globe size={16} /></span>
+            {/* Instagram */}
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em] ml-1">Social ID</label>
+              <div className="relative group">
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#333] group-focus-within:text-[#D8B4FE] transition-colors"><Instagram size={16} /></span>
                 <input 
-                  type="text" name="instagram"
-                  placeholder="@usuario"
-                  className="w-full bg-[#1A1A1A] border border-[#262626] rounded-lg pl-10 pr-3 py-2 text-[#F5F5F5] focus:outline-none focus:border-[#1E3A8A] transition-colors"
-                  onChange={handleChange}
+                  type="text" 
+                  placeholder="@ESTUDIO.DESIGN"
+                  className="w-full bg-transparent border-b border-white/5 py-4 pl-8 text-[11px] font-bold text-[#FFFFFF] tracking-widest focus:outline-none focus:border-[#D8B4FE]/50 transition-all placeholder:text-[#222]"
+                  onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
                 />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-[#A0A0A0] uppercase tracking-wider">WhatsApp</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0A0A0]"><Smartphone size={16} /></span>
+            {/* WhatsApp */}
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em] ml-1">Direct Line</label>
+              <div className="relative group">
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#333] group-focus-within:text-[#D8B4FE] transition-colors"><Phone size={16} /></span>
                 <input 
-                  type="text" name="whatsapp"
-                  placeholder="55..."
-                  className="w-full bg-[#1A1A1A] border border-[#262626] rounded-lg pl-10 pr-3 py-2 text-[#F5F5F5] focus:outline-none focus:border-[#1E3A8A] transition-colors"
-                  onChange={handleChange}
+                  type="text" 
+                  required
+                  placeholder="+55 00 00000-0000"
+                  className="w-full bg-transparent border-b border-white/5 py-4 pl-8 text-[11px] font-bold text-[#FFFFFF] tracking-widest focus:outline-none focus:border-[#D8B4FE]/50 transition-all placeholder:text-[#222]"
+                  onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
                 />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-[#A0A0A0] uppercase tracking-wider">Faturamento Est.</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0A0A0]"><DollarSign size={16} /></span>
+            {/* Faturamento */}
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em] ml-1">Ticket Potencial</label>
+              <div className="relative group">
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#333] group-focus-within:text-[#22C55E] transition-colors"><DollarSign size={16} /></span>
                 <input 
-                  type="number" name="faturamento_estimado"
-                  placeholder="Valor mensal"
-                  className="w-full bg-[#1A1A1A] border border-[#262626] rounded-lg pl-10 pr-3 py-2 text-[#F5F5F5] focus:outline-none focus:border-[#1E3A8A] transition-colors"
-                  onChange={handleChange}
+                  type="number" 
+                  required
+                  placeholder="0000.00"
+                  className="w-full bg-transparent border-b border-white/5 py-4 pl-8 text-[11px] font-bold text-[#FFFFFF] tracking-widest focus:outline-none focus:border-[#22C55E]/50 transition-all placeholder:text-[#222]"
+                  onChange={(e) => setFormData({ ...formData, faturamento_estimado: e.target.value })}
                 />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-[#A0A0A0] uppercase tracking-wider">Dia</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0A0A0]"><Calendar size={16} /></span>
+            {/* Data */}
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em] ml-1">Timeline Designer</label>
+              <div className="relative group">
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#333] group-focus-within:text-[#D8B4FE] transition-colors"><Calendar size={16} /></span>
                 <input 
-                  type="date" name="dia"
-                  className="w-full bg-[#1A1A1A] border border-[#262626] rounded-lg pl-10 pr-3 py-2 text-[#F5F5F5] focus:outline-none focus:border-[#1E3A8A] transition-colors"
-                  onChange={handleChange}
+                  type="text" 
+                  placeholder="EX: SEGUNDA-FEIRA"
+                  className="w-full bg-transparent border-b border-white/5 py-4 pl-8 text-[11px] font-bold text-[#FFFFFF] tracking-widest focus:outline-none focus:border-[#D8B4FE]/50 transition-all placeholder:text-[#222]"
+                  onChange={(e) => setFormData({ ...formData, dia: e.target.value })}
                 />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-[#A0A0A0] uppercase tracking-wider">Horário</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0A0A0]"><Clock size={16} /></span>
+            {/* Horário */}
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em] ml-1">Exclusive Slot</label>
+              <div className="relative group">
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#333] group-focus-within:text-[#D8B4FE] transition-colors"><Clock size={16} /></span>
                 <input 
-                  type="time" name="horario"
-                  className="w-full bg-[#1A1A1A] border border-[#262626] rounded-lg pl-10 pr-3 py-2 text-[#F5F5F5] focus:outline-none focus:border-[#1E3A8A] transition-colors"
-                  onChange={handleChange}
+                  type="text" 
+                  placeholder="00:00"
+                  className="w-full bg-transparent border-b border-white/5 py-4 pl-8 text-[11px] font-bold text-[#FFFFFF] tracking-widest focus:outline-none focus:border-[#D8B4FE]/50 transition-all placeholder:text-[#222]"
+                  onChange={(e) => setFormData({ ...formData, horario: e.target.value })}
                 />
               </div>
             </div>
           </div>
 
-          <button 
-            type="submit" 
-            className="w-full bg-[#1E3A8A] text-white py-3 rounded-xl font-bold hover:bg-[#2563EB] transition-all transform hover:scale-[1.02] active:scale-95 shadow-lg shadow-blue-900/20"
-          >
-            Cadastrar Lead Premium
-          </button>
+          <div className="pt-8 flex flex-col md:flex-row gap-6">
+            <button 
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-6 glass border-white/10 text-[10px] font-black uppercase tracking-[0.3em] text-[#888888] hover:text-[#FFFFFF] transition-all rounded-2xl active:scale-95"
+            >
+              Descartar Proposta
+            </button>
+            <button 
+              type="submit" 
+              className="flex-[2] bg-[#FFFFFF] text-[#000000] py-6 rounded-2xl font-black text-[10px] uppercase tracking-[0.4em] hover:bg-[#D8B4FE] transition-all duration-500 transform hover:scale-[1.02] shadow-2xl shadow-white/5 flex items-center justify-center gap-3 active:scale-95"
+            >
+              <Sparkles size={16} strokeWidth={3} className="text-black" />
+              CONECTAR AO ECOSSISTEMA
+            </button>
+          </div>
         </form>
+
+        <div className="p-8 pt-0 text-center">
+          <p className="text-[8px] text-[#222] font-black uppercase tracking-[0.2em]">© UNICO DESIGNER STUDIO CRM - SECURE DATA INPUT</p>
+        </div>
       </div>
     </div>
   )
