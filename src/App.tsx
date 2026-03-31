@@ -24,38 +24,35 @@ const formatTimeElapsed = (startedAt?: string) => {
 }
 
 // Authentication Guard Component
-const AuthGuard = ({ children, session, profile, loading, onSignOut }: any) => {
-  if (loading) return <div className="h-screen bg-[#14130E] flex items-center justify-center font-black uppercase text-xs tracking-[0.5em] text-zinc-900 animate-pulse">SINCRONIZANDO STUDIO...</div>
+const AuthGuard = ({ children, session, profile, loading }: any) => {
+  if (loading) return (
+    <div className="h-screen bg-[#14130E] flex flex-col items-center justify-center space-y-8 animate-fade-in">
+      <img src="https://github.com/legendragon03453-dot/FILIPPO-SITE/blob/main/U.webp?raw=true" alt="U" className="w-12 h-auto grayscale opacity-50 animate-pulse" />
+      <div className="space-y-2 text-center">
+        <p className="text-[10px] font-black text-white italic tracking-[1em] uppercase">SINCRONIZANDO STUDIO</p>
+        <p className="text-[8px] text-zinc-800 font-bold tracking-[0.5em] uppercase">AGUARDE A CONEXÃO COM HQ...</p>
+      </div>
+    </div>
+  )
   if (!session) return <Login />
-  return <Layout profile={profile} onSignOut={onSignOut}>{children}</Layout>
+  return <ModernLayout profile={profile}>{children}</ModernLayout>
 }
 
-// Layout Component (Fixed Sidebar Architecture - Linear Edition)
-const Layout = ({ children, profile, onSignOut }: { children: React.ReactNode, profile: any, onSignOut: () => void }) => {
-  const location = useLocation();
-  const isAdmin = profile?.role === 'CEO' || profile?.role === 'Asessor';
+import FloatingNav from './components/ui/floating-nav'
 
-  const navItems = [
-    { icon: <LayoutDashboard size={18} />, label: 'PAINEL', path: '/' },
-    ...(isAdmin ? [
-      { icon: <ShieldCheck size={18} />, label: 'CENTRAL CEO', path: '/admin' },
-      { icon: <Target size={18} />, label: 'GESTÃO ELITE', path: '/admin/management' }
-    ] : []),
-    { icon: <Users size={18} />, label: 'ECOSSISTEMA', path: '/leads' },
-    { icon: <Columns size={18} />, label: 'PIPELINE', path: '/kanban' },
-    { icon: <MessageSquare size={18} />, label: 'FOLLOW-UP', path: '/follow-up' },
-    { icon: <ListTodo size={18} />, label: 'TASKS', path: '/tasks' },
-    { icon: <CalendarIcon size={18} />, label: 'AGENDA STUDIO', path: '/appointments' },
-    { icon: <SettingsIcon size={18} />, label: 'AJUSTES', path: '/settings' },
-  ]
+// Modern Layout Component (Invisible architecture, Floating Nav)
+const ModernLayout = ({ children, profile }: { children: React.ReactNode, profile: any }) => {
+  const isAdmin = profile?.role === 'CEO' || profile?.role === 'Asessor';
+  
   return (
-    <div className={`flex min-h-screen font-outfit selection:bg-white/10 overflow-x-hidden transition-colors duration-500 bg-[#14130E] text-white`}>
-      <aside className={`w-64 fixed left-0 top-0 h-screen border-r border-[#2A2922] bg-[#14130E] flex flex-col p-6 z-50 rounded-none shadow-2xl`}>
-        <div className="mb-12 px-2 flex items-center justify-between border-b border-[#2A2922] pb-8"><div><h1 className="text-4xl font-black tracking-tighter leading-none mb-1 text-white italic">UNICO</h1><p className="text-[10px] text-zinc-500 uppercase tracking-[0.3em] font-light">Linear Designer CRM</p></div></div>
-        <nav className="flex-1 flex flex-col gap-1 overflow-y-auto custom-scrollbar">{navItems.map((item) => (<Link key={item.path} to={item.path} className={`flex items-center gap-4 px-4 py-4 rounded-none transition-all duration-200 group ${location.pathname.startsWith(item.path) && (item.path !== '/' || location.pathname === '/') ? 'bg-white text-black font-black' : 'text-zinc-600 hover:text-white hover:bg-white/5'}`}><span className={`transition-colors duration-200 ${location.pathname === item.path ? 'text-black' : 'group-hover:text-white'}`}>{item.icon}</span><span className="text-[10px] uppercase font-bold tracking-widest">{item.label}</span></Link>))}</nav>
-        <div className="mt-auto pt-8 border-t border-[#2A2922] space-y-6"><div className="px-4 py-4 bg-[#1C1B16] border border-[#2A2922] rounded-none"><div className="flex items-center gap-2 mb-2"><ShieldCheck size={10} className="text-zinc-700" /><p className="text-[9px] text-zinc-600 uppercase font-black tracking-widest">{profile?.role || 'STUDIO AGENT'}</p></div><p className="text-sm font-black tracking-tighter truncate text-white uppercase italic">{profile?.full_name || 'STUDIO AGENT'}</p></div><button onClick={onSignOut} className="flex items-center gap-4 px-4 py-3 w-full text-zinc-700 hover:text-white transition-all group active:scale-95 transition-all"><LogOut size={18} /><span className="text-xs uppercase font-bold tracking-widest">FECHAR SISTEMA</span></button></div>
-      </aside>
-      <main className="flex-1 ml-64 p-12 overflow-x-hidden min-h-screen text-white uppercase"><div className="max-w-[1600px] mx-auto">{children}</div></main>
+    <div className="min-h-screen font-outfit selection:bg-white/10 overflow-x-hidden bg-[#14130E] text-white uppercase transition-all duration-700">
+      <div className="fixed top-0 left-0 right-0 h-40 bg-gradient-to-b from-black/20 to-transparent pointer-events-none z-40"></div>
+      
+      <main className="relative z-10 w-full max-w-[1800px] mx-auto px-4 md:px-12 pt-16 pb-64">
+        {children}
+      </main>
+
+      <FloatingNav isAdmin={isAdmin} />
     </div>
   )
 }
@@ -75,78 +72,11 @@ const ScheduleModal = ({ lead, onClose, onSave }: { lead: Lead, onClose: () => v
   )
 }
 
-// --- ADMIN DASHBOARD ---
+import { SalesDashboard } from './components/ui/live-sales-dashboard'
+
+// --- ADMIN DASHBOARD (RELATÓRIOS REAIS) ---
 const AdminDashboard = () => {
-  const { leads, loading } = useLeads()
-  const { tasks } = useTasks()
-  const [employees, setEmployees] = useState<any[]>([])
-
-  useEffect(() => { supabase.from('profiles').select('*').then(({ data }) => setEmployees(data || [])) }, [])
-
-  const salesByOwner = employees.map(emp => {
-    const soldLeads = leads.filter(l => l.owner_id === emp.id && l.status === 'vendido')
-    const totalValue = soldLeads.reduce((acc, curr) => acc + (Number(curr.faturamento_estimado) || 0), 0)
-    return { ...emp, soldLeads: soldLeads.length, totalValue }
-  }).sort((a, b) => b.totalValue - a.totalValue)
-
-  const faturamentoTotal = leads.reduce((acc, curr) => acc + (Number(curr.faturamento_estimado) || 0), 0)
-  const completedTasks = tasks.filter(t => t.status === 'completed').length
-
-  const stats = [
-    { label: 'EQUITY CONVERSÃO', value: `R$ ${faturamentoTotal.toLocaleString()}`, icon: <DollarSign />, color: 'white' },
-    { label: 'FLUXO MONITORADO', value: leads.length, icon: <Users />, color: 'white' },
-    { label: 'QUADRO ELITE', value: employees.length, icon: <User />, color: 'white' },
-    { label: 'EXECUÇÃO OPERACIONAL', value: `${completedTasks} / ${tasks.length}`, icon: <CheckCircle2 />, color: 'white' }
-  ]
-
-  if (loading) return <div className="text-zinc-900 flex items-center justify-center min-h-[50vh] font-black uppercase anime-pulse text-[12px] tracking-[1em]">LENDO SISTEMA...</div>
-
-  return (
-    <div className="space-y-16 animate-fade-in-up uppercase">
-       <div className="flex items-center justify-between"><div><h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic">CENTRAL CEO</h2><p className="text-[11px] text-zinc-600 uppercase tracking-[0.6em] font-light">VISÃO ANALÍTICA E ESTRATÉGICA DO ESTÚDIO.</p></div></div>
-       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {stats.map((stat, i) => (
-             <div key={i} className="bg-[#1C1B16] border border-[#2A2922] p-10 flex flex-col gap-10 group hover:bg-[#2A2922] transition-all shadow-2xl relative overflow-hidden">
-                <div className="flex justify-between items-center"><span className="p-4 bg-white text-black group-hover:scale-110 transition-all shadow-inner">{stat.icon}</span><p className="text-[10px] font-black tracking-[0.3em] text-zinc-700">HQ DATA</p></div>
-                <div><p className="text-[10px] font-bold text-zinc-600 tracking-[0.2em] mb-2">{stat.label}</p><h3 className="text-3xl font-black text-white italic tracking-tighter">{stat.value}</h3></div>
-             </div>
-          ))}
-       </div>
-
-       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div className="bg-[#1C1B16] border border-[#2A2922] p-12 shadow-2xl space-y-10">
-             <div className="flex items-center gap-4 border-b border-[#2A2922] pb-6"><Trophy size={18} className="text-white" /><h3 className="text-[10px] font-black text-zinc-700 tracking-widest uppercase">RANKING DE CONVERSÃO (TOP OPERADORES)</h3></div>
-             <div className="space-y-6">
-                {salesByOwner.slice(0, 5).map((owner, i) => (
-                  <div key={owner.id} className="flex items-center gap-8 p-6 bg-black/40 border border-[#2A2922] group hover:border-white transition-all shadow-xl relative">
-                     <div className="w-12 h-12 bg-zinc-900 border border-[#2A2922] flex items-center justify-center font-black text-white italic text-xl">{i + 1}</div>
-                     <div className="flex-1"><h4 className="text-xl font-black text-white italic truncate">{owner.full_name}</h4><p className="text-[8px] text-zinc-700 font-bold tracking-widest mt-1 uppercase">VOL: {owner.soldLeads} VENDAS</p></div>
-                     <div className="text-right"><p className="text-lg font-black text-white italic tracking-tighter">R$ {owner.totalValue.toLocaleString()}</p></div>
-                  </div>
-                ))}
-             </div>
-          </div>
-          <div className="bg-[#1C1B16] border border-[#2A2922] p-12 shadow-2xl space-y-10">
-             <div className="flex items-center gap-4 border-b border-[#2A2922] pb-6"><ListTodo size={18} className="text-white" /><h3 className="text-[10px] font-black text-zinc-700 tracking-widest uppercase">MONITORAMENTO DE EXECUÇÃO (TASKS)</h3></div>
-             <div className="space-y-2 max-h-[600px] overflow-y-auto custom-scrollbar">
-                {employees.map(emp => {
-                  const empTasks = tasks.filter(t => t.assigned_to === emp.id)
-                  const empCompleted = empTasks.filter(t => t.status === 'completed').length
-                  return (
-                    <div key={emp.id} className="p-6 border border-[#2A2922] hover:bg-white/5 transition-all">
-                       <div className="flex justify-between items-center mb-3">
-                          <p className="text-xs font-black text-white italic uppercase">{emp.full_name}</p>
-                          <p className="text-[9px] font-black text-zinc-600 uppercase">{empCompleted}/{empTasks.length} MISSÕES</p>
-                       </div>
-                       <div className="w-full h-1 bg-zinc-900"><div className="h-full bg-white transition-all duration-1000" style={{ width: `${(empCompleted/empTasks.length) * 100 || 0}%` }}></div></div>
-                    </div>
-                  )
-                })}
-             </div>
-          </div>
-       </div>
-    </div>
-  )
+  return <SalesDashboard />
 }
 
 // --- ADMIN MANAGEMENT ---
@@ -245,23 +175,42 @@ const Tasks = ({ profile }: { profile: any }) => {
   )
 }
 
+import { MarketingDashboard } from './components/ui/dashboard-1'
+
 // Dashboard with Role-Specific metrics
 const DashboardUnified = ({ profile }: { profile: any }) => {
   const { leads, loading } = useLeads()
   const { tasks } = useTasks(profile?.id)
-  const stats = [{ label: 'PIPELINE ATIVO', value: leads.length, icon: <Users size={18} /> }, { label: 'SUAS TASKS', value: tasks.filter(t => t.status === 'pending').length, icon: <ListTodo size={18} /> }, { label: 'EQUITY ESTIMADO', value: `R$ ${leads.reduce((acc, curr) => acc + (Number(curr.faturamento_estimado) || 0), 0).toLocaleString()}`, icon: <DollarSign size={18} /> }, { label: 'OPORTUNIDADES ELITE', value: leads.filter(l => (l.ai_score || 0) > 80).length, icon: <Sparkles size={18} /> }]
+  
   if (loading) return <div className="text-zinc-900 flex items-center justify-center min-h-[50vh] font-black uppercase animate-pulse text-[12px] tracking-[1em]">SINCRONIZANDO PORTAL...</div>
+  
+  const sampleTeamActivities = {
+    totalHours: tasks.filter(t => t.status === 'completed').length * 2.5 + 8,
+    stats: [
+      { label: "MISSÕES", value: 45, color: "bg-white" },
+      { label: "LEADS", value: 25, color: "bg-zinc-600" },
+      { label: "FOLLOWS", value: 15, color: "bg-zinc-800" },
+      { label: "IDLE", value: 15, color: "bg-zinc-950" },
+    ],
+  };
+
+  const sampleTeam = {
+    memberCount: leads.length,
+    members: leads.slice(0, 8).map(l => ({ id: l.id, name: l.name, avatarUrl: `https://i.pravatar.cc/150?u=${l.id}` })),
+  };
+
+  const sampleCta = {
+    text: "ACESSAR MEU FLUXO DE TRABALHO",
+    buttonText: "VER TUDO",
+    onButtonClick: () => window.location.href = '/leads',
+  };
+
   return (
-    <div className="space-y-16 animate-fade-in-up uppercase">
-      <div className="flex items-center justify-between"><h2 className="text-8xl font-black tracking-tighter mb-2 text-white italic">PORTAL STUDIO</h2></div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {stats.map((stat, i) => (<div key={i} className="bg-[#1C1B16] border border-[#2A2922] p-10 flex flex-col gap-8 group hover:bg-[#2A2922] transition-all shadow-2xl relative overflow-hidden"><div className="flex items-center justify-between"><span className="p-4 bg-white text-black group-hover:scale-110 transition-all shadow-inner">{stat.icon}</span></div><div><p className="text-[10px] font-bold text-zinc-600 tracking-[0.2em] mb-2">{stat.label}</p><h3 className="text-4xl font-black text-white italic tracking-tighter">{stat.value}</h3></div></div>))}
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        <div className="lg:col-span-1 bg-[#1C1B16] border border-[#2A2922] p-12 shadow-2xl space-y-12"><h3 className="text-[10px] font-black tracking-[0.3em] text-white/50 border-b border-[#2A2922] pb-6">SUA PERFORMANCE: {profile?.full_name}</h3><div className="space-y-10"><div className="space-y-6"><p className="text-[10px] font-black text-white flex items-center gap-3 uppercase"><ThumbsUp size={14} /> PONTOS FORTES</p><div className="flex flex-wrap gap-2">{(profile?.points_pos || ['AGILIDADE', 'EXECUÇÃO']).map((p: any, i: number) => (<span key={i} className="text-[9px] bg-white text-black px-4 py-2 font-black italic uppercase">{p}</span>))}</div></div><div className="space-y-6"><p className="text-[10px] font-black text-white flex items-center gap-3 uppercase"><ThumbsDown size={14} /> A MELHORAR</p><div className="flex flex-wrap gap-2">{(profile?.points_neg || ['PONTUALIDADE']).map((p: any, i: number) => (<span key={i} className="text-[9px] bg-black border border-[#2A2922] text-zinc-600 px-4 py-2 font-black italic uppercase">{p}</span>))}</div></div></div></div>
-        <div className="lg:col-span-2 bg-[#1C1B16] border border-[#2A2922] p-12 shadow-2xl"><h3 className="text-[10px] font-black border-b border-[#2A2922] pb-6 mb-10 text-zinc-700 tracking-widest uppercase">MEUS ÚLTIMOS LEADS</h3><div className="space-y-2">{leads.filter(l => l.owner_id === profile.id).slice(0, 6).map(lead => (<div key={lead.id} className="flex items-center gap-8 p-6 hover:bg-white/5 transition-all group"><div className="w-14 h-14 bg-black border border-zinc-900 flex items-center justify-center text-white font-black italic uppercase">{lead.name?.[0]}</div><div className="flex-1 truncate"><p className="text-xl font-black text-white group-hover:text-zinc-200 italic truncate uppercase">{lead.name}</p><p className="text-[9px] text-zinc-700 tracking-widest mt-1 uppercase">STATUS: {lead.status?.replace('_', ' ')}</p></div><div className="text-right text-xs font-black text-white uppercase">{lead.ai_score || 0}% IA</div></div>))}</div></div>
-      </div>
-    </div>
+    <MarketingDashboard 
+        teamActivities={sampleTeamActivities}
+        team={sampleTeam}
+        cta={sampleCta}
+    />
   )
 }
 
