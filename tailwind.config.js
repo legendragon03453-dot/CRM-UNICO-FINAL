@@ -7,14 +7,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        'accent-purple': '#D8B4FE',
-        'accent-green': '#22C55E',
+        'zinc-950': '#09090b',
+        'zinc-900': '#18181b',
+        'zinc-800': '#27272a',
+        'zinc-700': '#3f3f46',
       },
       fontFamily: {
         outfit: ['Outfit', 'sans-serif'],
-      },
-      letterSpacing: {
-        'tightest': '-0.05em',
       },
     },
   },

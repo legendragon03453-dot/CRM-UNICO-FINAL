@@ -26,138 +26,138 @@ export const AddLeadModal = ({ onClose, onAdd }: AddLeadModalProps) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-[#000000]/90 backdrop-blur-3xl flex items-center justify-center p-4 z-50 animate-in fade-in duration-500 overflow-y-auto">
-      <div className="w-full max-w-2xl bg-zinc-950/80 backdrop-blur-3xl rounded-[40px] border border-zinc-800 shadow-[0_40px_100px_rgba(0,0,0,1)] relative overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 bg-[#000000]/95 backdrop-blur-3xl flex items-center justify-center p-4 z-[200] animate-in fade-in duration-700 overflow-y-auto">
+      <div className="w-full max-w-4xl bg-zinc-950 border border-zinc-900 rounded-[64px] shadow-[0_60px_150px_rgba(0,0,0,1)] relative overflow-hidden flex flex-col max-h-[95vh]">
         
-        {/* Glow Header */}
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#D8B4FE]/30 to-transparent"></div>
+        {/* Designer Header */}
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-purple-500/40 to-transparent"></div>
 
-        <div className="p-12 pb-6 flex justify-between items-start">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-1.5 h-1.5 bg-[#D8B4FE] rounded-full glow-purple"></div>
-              <h2 className="text-sm font-black text-[#FFFFFF] tracking-[0.4em] uppercase">Novo Lead Premium</h2>
+        <div className="p-16 pb-10 flex justify-between items-start">
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-pulse shadow-[0_0_20px_rgba(168,85,247,0.8)]"></div>
+              <h2 className="text-sm font-black text-white tracking-[0.6em] uppercase italic">Captação Elite</h2>
             </div>
-            <p className="text-[10px] text-[#888888] font-light tracking-[0.2em] uppercase">Qualificação Elite no ecossistema UNICO.</p>
+            <p className="text-[11px] text-zinc-600 font-bold tracking-[0.2em] uppercase leading-relaxed max-w-xs">Inserindo novos dados estratégicos no ecossistema de alta fidelidade UNICO.</p>
           </div>
           <button 
             onClick={onClose}
-            className="text-zinc-500 hover:text-white bg-zinc-950/50 backdrop-blur-md border border-zinc-800 p-4 rounded-full transition-all group active:scale-90"
+            className="text-zinc-700 hover:text-white bg-zinc-900/50 backdrop-blur-md border border-zinc-800 p-6 rounded-full transition-all duration-500 group active:scale-90"
           >
-            <X size={18} className="group-hover:rotate-90 transition-transform" />
+            <X size={24} className="group-hover:rotate-180 transition-transform duration-700" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-12 pt-6 space-y-10 overflow-y-auto scroll-hide">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+        <form onSubmit={handleSubmit} className="p-16 pt-0 space-y-16 overflow-y-auto custom-scrollbar">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
             {/* Nome */}
-            <div className="space-y-3">
-              <label className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em] ml-1">Identificação Designer</label>
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.5em] ml-2 italic">Designer ID Name</label>
               <div className="relative group">
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#333] group-focus-within:text-[#D8B4FE] transition-colors"><User size={16} /></span>
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-zinc-800 group-focus-within:text-purple-400 transition-colors duration-500"><User size={18} /></span>
                 <input 
                   type="text" 
                   required
-                  placeholder="NOME COMPLETO"
-                  className="w-full bg-transparent border-b border-white/5 py-4 pl-8 text-[11px] font-bold text-[#FFFFFF] tracking-widest focus:outline-none focus:border-[#D8B4FE]/50 transition-all placeholder:text-[#222]"
+                  placeholder="DIGITE O NOME COMPLETO"
+                  className="w-full bg-transparent border-b-2 border-zinc-900 py-6 pl-10 text-xs font-black text-white tracking-[0.3em] focus:outline-none focus:border-purple-500/50 transition-all duration-500 placeholder:text-zinc-900 uppercase"
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
               </div>
             </div>
 
-            {/* Instagram */}
-            <div className="space-y-3">
-              <label className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em] ml-1">Social ID</label>
+            {/* Social */}
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.5em] ml-2 italic">Social Identity</label>
               <div className="relative group">
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#333] group-focus-within:text-[#D8B4FE] transition-colors"><Globe size={16} /></span>
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-zinc-800 group-focus-within:text-purple-400 transition-colors duration-500"><Globe size={18} /></span>
                 <input 
                   type="text" 
                   placeholder="@ESTUDIO.DESIGN"
-                  className="w-full bg-transparent border-b border-white/5 py-4 pl-8 text-[11px] font-bold text-[#FFFFFF] tracking-widest focus:outline-none focus:border-[#D8B4FE]/50 transition-all placeholder:text-[#222]"
+                  className="w-full bg-transparent border-b-2 border-zinc-900 py-6 pl-10 text-xs font-black text-white tracking-[0.3em] focus:outline-none focus:border-purple-500/50 transition-all duration-500 placeholder:text-zinc-900 uppercase"
                   onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
                 />
               </div>
             </div>
 
-            {/* WhatsApp */}
-            <div className="space-y-3">
-              <label className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em] ml-1">Direct Line</label>
+            {/* Direct Line */}
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.5em] ml-2 italic">Direct Line</label>
               <div className="relative group">
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#333] group-focus-within:text-[#D8B4FE] transition-colors"><Phone size={16} /></span>
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-zinc-800 group-focus-within:text-purple-400 transition-colors duration-500"><Phone size={18} /></span>
                 <input 
                   type="text" 
                   required
                   placeholder="+55 00 00000-0000"
-                  className="w-full bg-transparent border-b border-white/5 py-4 pl-8 text-[11px] font-bold text-[#FFFFFF] tracking-widest focus:outline-none focus:border-[#D8B4FE]/50 transition-all placeholder:text-[#222]"
+                  className="w-full bg-transparent border-b-2 border-zinc-900 py-6 pl-10 text-xs font-black text-white tracking-[0.3em] focus:outline-none focus:border-purple-500/50 transition-all duration-500 placeholder:text-zinc-900 uppercase"
                   onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
                 />
               </div>
             </div>
 
-            {/* Faturamento */}
-            <div className="space-y-3">
-              <label className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em] ml-1">Ticket Potencial</label>
+            {/* Budget */}
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.5em] ml-2 italic">Ticket Potencial</label>
               <div className="relative group">
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#333] group-focus-within:text-[#22C55E] transition-colors"><DollarSign size={16} /></span>
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-zinc-800 group-focus-within:text-green-500 transition-colors duration-500"><DollarSign size={18} /></span>
                 <input 
                   type="number" 
                   required
                   placeholder="0000.00"
-                  className="w-full bg-transparent border-b border-white/5 py-4 pl-8 text-[11px] font-bold text-[#FFFFFF] tracking-widest focus:outline-none focus:border-[#22C55E]/50 transition-all placeholder:text-[#222]"
+                  className="w-full bg-transparent border-b-2 border-zinc-900 py-6 pl-10 text-xs font-black text-white tracking-[0.3em] focus:outline-none focus:border-green-500/50 transition-all duration-500 placeholder:text-zinc-900"
                   onChange={(e) => setFormData({ ...formData, faturamento_estimado: e.target.value })}
                 />
               </div>
             </div>
 
             {/* Data */}
-            <div className="space-y-3">
-              <label className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em] ml-1">Timeline Designer</label>
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.5em] ml-2 italic">Radar Slot Date</label>
               <div className="relative group">
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#333] group-focus-within:text-[#D8B4FE] transition-colors"><Calendar size={16} /></span>
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-zinc-800 group-focus-within:text-purple-400 transition-colors duration-500"><Calendar size={18} /></span>
                 <input 
                   type="text" 
                   placeholder="EX: SEGUNDA-FEIRA"
-                  className="w-full bg-transparent border-b border-white/5 py-4 pl-8 text-[11px] font-bold text-[#FFFFFF] tracking-widest focus:outline-none focus:border-[#D8B4FE]/50 transition-all placeholder:text-[#222]"
+                  className="w-full bg-transparent border-b-2 border-zinc-900 py-6 pl-10 text-xs font-black text-white tracking-[0.3em] focus:outline-none focus:border-purple-500/50 transition-all duration-500 placeholder:text-zinc-900 uppercase"
                   onChange={(e) => setFormData({ ...formData, dia: e.target.value })}
                 />
               </div>
             </div>
 
             {/* Horário */}
-            <div className="space-y-3">
-              <label className="text-[10px] font-black text-[#333] uppercase tracking-[0.3em] ml-1">Exclusive Slot</label>
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.5em] ml-2 italic">Exclusive Slot Time</label>
               <div className="relative group">
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#333] group-focus-within:text-[#D8B4FE] transition-colors"><Clock size={16} /></span>
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-zinc-800 group-focus-within:text-purple-400 transition-colors duration-500"><Clock size={18} /></span>
                 <input 
                   type="text" 
                   placeholder="00:00"
-                  className="w-full bg-transparent border-b border-white/5 py-4 pl-8 text-[11px] font-bold text-[#FFFFFF] tracking-widest focus:outline-none focus:border-[#D8B4FE]/50 transition-all placeholder:text-[#222]"
+                  className="w-full bg-transparent border-b-2 border-zinc-900 py-6 pl-10 text-xs font-black text-white tracking-[0.3em] focus:outline-none focus:border-purple-500/50 transition-all duration-500 placeholder:text-zinc-900 uppercase"
                   onChange={(e) => setFormData({ ...formData, horario: e.target.value })}
                 />
               </div>
             </div>
           </div>
 
-          <div className="pt-8 flex flex-col md:flex-row gap-6">
+          <div className="pt-20 flex flex-col md:flex-row gap-10">
             <button 
               type="button"
               onClick={onClose}
-              className="flex-1 py-6 bg-zinc-950/50 backdrop-blur-md border border-zinc-900 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 hover:text-white transition-all rounded-2xl active:scale-95"
+              className="flex-1 py-8 bg-zinc-950 border-2 border-zinc-900 text-[11px] font-black uppercase tracking-[0.5em] text-zinc-700 hover:text-white hover:border-zinc-700 transition-all duration-700 rounded-full active:scale-95"
             >
-              Descartar Proposta
+              Neutralizar Lead
             </button>
             <button 
               type="submit" 
-              className="flex-[2] bg-[#FFFFFF] text-[#000000] py-6 rounded-2xl font-black text-[10px] uppercase tracking-[0.4em] hover:bg-[#D8B4FE] transition-all duration-500 transform hover:scale-[1.02] shadow-2xl shadow-white/5 flex items-center justify-center gap-3 active:scale-95"
+              className="flex-[2] bg-white text-black py-8 rounded-full font-black text-[11px] uppercase tracking-[0.6em] hover:bg-purple-400 transition-all duration-700 transform hover:scale-[1.02] shadow-[0_20px_60px_rgba(255,255,255,0.1)] flex items-center justify-center gap-4 active:scale-95 group"
             >
-              <Sparkles size={16} strokeWidth={3} className="text-black" />
-              CONECTAR AO ECOSSISTEMA
+              <Sparkles size={20} strokeWidth={3} className="text-black group-hover:rotate-90 transition-transform duration-700" />
+              Ingressar no Ecossistema
             </button>
           </div>
         </form>
 
-        <div className="p-8 pt-0 text-center">
-          <p className="text-[8px] text-[#222] font-black uppercase tracking-[0.2em]">© UNICO DESIGNER STUDIO CRM - SECURE DATA INPUT</p>
+        <div className="p-12 pt-0 text-center">
+          <p className="text-[9px] text-zinc-900 font-extrabold uppercase tracking-[1em]">UNICO DESIGN SYSTEM © SECURE DATA FLOW</p>
         </div>
       </div>
     </div>
