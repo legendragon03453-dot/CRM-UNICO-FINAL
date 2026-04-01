@@ -55,11 +55,11 @@ export const AddLeadModal = ({ onClose, onAdd, profile }: AddLeadModalProps) => 
 
   return (
     <div className="fixed inset-0 bg-[#000000]/98 backdrop-blur-3xl flex items-center justify-center p-4 z-[200] animate-in fade-in duration-500 overflow-y-auto font-outfit">
-      <div className="w-full max-w-5xl bg-[#1C1B16] border border-[#2A2922] rounded-none shadow-[0_60px_150px_rgba(0,0,0,1)] relative flex flex-col max-h-[95vh] my-auto">
+      <div className="w-full max-w-5xl bg-[#1C1B16] border border-[#2A2922] rounded-none shadow-[0_60px_150px_rgba(0,0,0,1)] relative flex flex-col max-h-[95vh] h-full sm:h-auto my-auto overflow-hidden">
         
-        {/* COMMISSION POPUP / SIDE BAR */}
+        {/* COMMISSION POPUP / SIDE BAR (ONLY ON VERY LARGE SCREENS) */}
         {Number(formData.faturamento_estimado) > 0 && (
-          <div className="absolute -right-4 top-1/2 -translate-y-1/2 translate-x-full hidden xl:flex flex-col gap-4 animate-in slide-in-from-left-8 duration-500">
+          <div className="absolute -right-4 top-1/2 -translate-y-1/2 translate-x-full hidden 2xl:flex flex-col gap-4 animate-in slide-in-from-left-8 duration-500">
              <div className="bg-white p-8 border-l-8 border-zinc-300 shadow-2xl flex flex-col gap-4 min-w-[280px]">
                 <div className="flex items-center gap-3"><Percent size={14} className="text-black" /><p className="text-[10px] font-black tracking-widest text-black uppercase italic">Comissão (30%)</p></div>
                 <h4 className="text-4xl font-black text-black tracking-tighter italic">R$ {commission.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h4>
@@ -69,18 +69,18 @@ export const AddLeadModal = ({ onClose, onAdd, profile }: AddLeadModalProps) => 
         )}
 
         <div className="absolute top-0 left-0 w-full h-1 bg-white/5"></div>
-        <div className="p-16 pb-10 flex justify-between items-start">
+        <div className="p-8 md:p-16 pb-6 md:pb-10 flex justify-between items-start shrink-0">
           <div className="space-y-4">
              <h2 className="text-sm font-black text-white tracking-[0.6em] uppercase flex items-center gap-4 italic"><div className="w-2 h-2 bg-white animate-pulse"></div>Captação Elite Linear</h2>
              <p className="text-[11px] text-zinc-600 font-bold uppercase tracking-[0.2em] leading-relaxed max-w-xs">Inserindo novos dados estratégicos no ecossistema UNICO Studio.</p>
           </div>
-          <button onClick={onClose} className="text-zinc-700 hover:text-white border border-[#2A2922] p-6 hover:bg-white/5 transition-all outline-none">
+          <button onClick={onClose} className="text-zinc-700 hover:text-white border border-[#2A2922] p-4 md:p-6 hover:bg-white/5 transition-all outline-none">
             <X size={24} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-16 pt-0 space-y-16 overflow-y-auto custom-scrollbar scrollbar-thin">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
+        <form onSubmit={handleSubmit} className="p-8 md:p-16 pt-0 space-y-12 md:space-y-16 overflow-y-auto flex-1 custom-scrollbar scrollbar-thin">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 md:gap-x-16 gap-y-10 md:gap-y-12">
             
             <div className="md:col-span-2 space-y-6">
               <label className="text-[10px] font-black text-white uppercase tracking-[0.5em] italic">Selecione o Serviço do Studio</label>
@@ -138,9 +138,9 @@ export const AddLeadModal = ({ onClose, onAdd, profile }: AddLeadModalProps) => 
               </div>
             </div>
 
-            {/* MOBILE ONLY COMMISSION VIEW */}
+            {/* COMMISSION VIEW FOR SMALLER SCREENS */}
             {commission > 0 && (
-              <div className="md:col-span-2 xl:hidden bg-white p-6 border-l-8 border-zinc-300 flex items-center justify-between shadow-xl animate-in fade-in slide-in-from-top-4 duration-500">
+              <div className="md:col-span-2 2xl:hidden bg-white p-6 border-l-8 border-zinc-300 flex items-center justify-between shadow-xl animate-in fade-in slide-in-from-top-4 duration-500 mt-4">
                 <div>
                    <p className="text-[9px] font-black tracking-widest text-zinc-500 uppercase">Comissão Estimada (30%)</p>
                    <h4 className="text-2xl font-black text-black tracking-tighter italic">R$ {commission.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</h4>
@@ -150,15 +150,15 @@ export const AddLeadModal = ({ onClose, onAdd, profile }: AddLeadModalProps) => 
             )}
           </div>
 
-          <div className="pt-20 flex gap-4">
-            <button type="button" onClick={onClose} className="flex-1 py-8 border-2 border-[#2A2922] text-[11px] font-black uppercase tracking-[0.5em] text-zinc-600 hover:text-white transition-all">Descartar</button>
-            <button type="submit" className="flex-[2] bg-white text-black py-8 font-black text-[11px] uppercase tracking-[0.6em] hover:bg-zinc-200 transition-all active:scale-95 flex items-center justify-center gap-4">Finalizar Cadastro</button>
+          <div className="pt-10 md:pt-20 flex flex-col sm:flex-row gap-4 mb-4">
+            <button type="button" onClick={onClose} className="flex-1 py-6 md:py-8 border-2 border-[#2A2922] text-[11px] font-black uppercase tracking-[0.5em] text-zinc-600 hover:text-white transition-all">Descartar</button>
+            <button type="submit" className="flex-[2] bg-white text-black py-6 md:py-8 font-black text-[11px] uppercase tracking-[0.6em] hover:bg-zinc-200 transition-all active:scale-95 flex items-center justify-center gap-4">Finalizar Cadastro</button>
           </div>
         </form>
 
-        <div className="p-12 pt-0 flex flex-col items-center gap-6 border-t border-[#2A2922]/50">
+        <div className="p-8 md:p-12 pt-0 flex flex-col items-center gap-4 md:gap-6 border-t border-[#2A2922]/50 shrink-0">
            {profile && (
-             <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-8 border-b border-[#2A2922] pb-1">Operador Studio: {profile.full_name}</p>
+             <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-4 md:mt-8 border-b border-[#2A2922] pb-1">Operador Studio: {profile.full_name}</p>
            )}
            <p className="text-[9px] text-zinc-800 font-extrabold uppercase tracking-[1em] mb-4">UNICO DESIGN SYSTEM © SECURE DATA</p>
         </div>
