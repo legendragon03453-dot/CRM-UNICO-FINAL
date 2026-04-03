@@ -8,25 +8,16 @@ export default {
     extend: {
       colors: {
         studio: {
-          bg: '#14130E',
-          card: '#1C1B16',
-          border: '#2A2922',
+          bg: '#1E1E24',
+          card: '#2A2A35',
+          border: '#363645',
+          blue: '#3B82F6',
+          orange: '#FB923C',
         }
       },
       fontFamily: {
-        outfit: ['Outfit', 'sans-serif'],
+        outfit: ['Outfit', 'sans-serif', 'Inter'],
       },
-      borderRadius: {
-        'none': '0',
-        'sm': '0',
-        'DEFAULT': '0',
-        'md': '0',
-        'lg': '0',
-        'xl': '0',
-        '2xl': '0',
-        '3xl': '0',
-        'full': '0',
-      }
     },
   },
   plugins: [],
