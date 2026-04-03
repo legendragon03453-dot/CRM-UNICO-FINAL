@@ -1,48 +1,55 @@
-/* src/index.css */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;500;700;900&display=swap');
+@import "tailwindcss";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@theme {
+  --color-brand-purple: #C90EFF;
+  --color-brand-pink: #EDAFFF;
+  --color-studio-bg: #1E1E24;
+  --color-studio-card: #2A2A35;
+  --color-studio-border: #363645;
+  --color-studio-blue: #3B82F6;
+  --color-studio-orange: #FB923C;
+
+  --radius-luxury: 20px;
+  --font-outfit: "Outfit", sans-serif;
+}
+
+@utility rounded-luxury {
+  border-radius: var(--radius-luxury);
+}
+
+@utility bg-linear-luxury {
+  background: linear-gradient(135deg, var(--color-brand-purple) 0%, var(--color-brand-pink) 100%);
+}
+
+@utility text-linear-luxury {
+  background: linear-gradient(135deg, var(--color-brand-purple) 0%, var(--color-brand-pink) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 
 @layer base {
   body {
-    @apply bg-[#1E1E24] text-white antialiased overflow-x-hidden;
-    font-family: 'Outfit', sans-serif;
+    @apply bg-studio-bg text-white antialiased overflow-x-hidden font-outfit;
   }
 }
 
 @layer components {
-  .rounded-luxury {
-    border-radius: 20px;
-  }
-
-  .bg-linear-luxury {
-    background: linear-gradient(135deg, #C90EFF 0%, #EDAFFF 100%);
-  }
-
-  .text-linear-luxury {
-    background: linear-gradient(135deg, #C90EFF 0%, #EDAFFF 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
   .custom-scrollbar::-webkit-scrollbar {
     width: 4px;
     height: 4px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: #1E1E24;
+    background: var(--color-studio-bg);
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #363645;
+    background: var(--color-studio-border);
     border-radius: 10px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #C90EFF;
+    background: var(--color-brand-purple);
   }
 }
 
