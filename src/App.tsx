@@ -145,7 +145,8 @@ const ScheduleModal = ({ lead, onClose, onSave }: { lead: Lead, onClose: () => v
          </div>
        </div>
      </div>
-  )// --- ADMIN DASHBOARD (OPERATOR MONITOR) ---
+  )
+}// --- ADMIN DASHBOARD (OPERATOR MONITOR) ---
 const AdminDashboard = ({ onlineUsers }: { onlineUsers: any }) => {
   const [employees, setEmployees] = useState<any[]>([])
   const { tasks, addTask } = useTasks()
