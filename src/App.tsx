@@ -305,6 +305,11 @@ const AdminManagement = () => {
        )}
     </div>
   )
+}
+
+// --- TASKS PAGE (EMPLOYEE VIEW) ---
+const Tasks = ({ profile }: { profile: any }) => {
+  const { tasks, updateTaskStatus } = useTasks(profile?.id)
   const handleSave = async (id: string, currentStatus: string) => { await updateTaskStatus(id, currentStatus === 'completed' ? 'pending' : 'completed'); alert('Status Sincronizado com HQ.') }
   return (
     <div className="space-y-12 animate-fade-in-up">
@@ -719,7 +724,6 @@ const Agenda = () => {
             })}
           </div>
        </div>
-        </div>
      </div>
   )
 }
