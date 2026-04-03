@@ -1,79 +1,63 @@
-@import "tailwindcss";
+index.css
+/* src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;500;700;900&display=swap');
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  font-family: 'Outfit', sans-serif;
-  color-scheme: dark;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  background-color: #14130E;
-  color: #FFFFFF;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* Custom Scrollbar UNICO SHARP */
-::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 0px; /* Zero radius */
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-/* Sharp Transitions */
-* {
-  transition: all 0.2s cubic-bezier(0, 0, 0.2, 1);
-  border-radius: 0px !important; /* Force zero radius on all elements */
-}
-
-/* Utility Overrides for Linear Studio */
-@layer utilities {
-  .glass {
-    @apply bg-[#1C1B16]/60 backdrop-blur-md border border-[#2A2922];
-  }
-
-  .glass-no-blur {
-    @apply bg-[#1C1B16]/60 border border-[#2A2922];
-  }
-
-  .neon-glow-amber {
-    box-shadow: 0 0 15px rgba(245, 158, 11, 0.05);
-  }
-
-  .neon-glow-white {
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.03);
+@layer base {
+  body {
+    @apply bg-[#1E1E24] text-white antialiased overflow-x-hidden;
+    font-family: 'Outfit', sans-serif;
   }
 }
 
-/* Staggered Fade-in Animation */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
+@layer components {
+  .rounded-luxury {
+    border-radius: 20px;
   }
-  to {
-    opacity: 1;
+
+  .bg-linear-luxury {
+    background: linear-gradient(135deg, #C90EFF 0%, #EDAFFF 100%);
+  }
+
+  .text-linear-luxury {
+    background: linear-gradient(135deg, #C90EFF 0%, #EDAFFF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #1E1E24;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #363645;
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #C90EFF;
   }
 }
 
 .animate-fade-in-up {
-  animation: fadeInUp 0.4s ease forwards;
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Drag and Drop Overlays */
-.dnd-dragging {
-  cursor: grabbing !important;
-  box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-  border-color: rgba(255,255,255,0.4) !important;
-  transform: scale(1.02);
-  z-index: 999;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
