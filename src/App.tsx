@@ -81,7 +81,7 @@ const ScheduleModal = ({ lead, onClose, onSave }: { lead: Lead, onClose: () => v
 }
 
 // --- ADMIN DASHBOARD ---
-const AdminDashboard = () => {
+const AdminDashboard = ({ onlineUsers = {} }: { onlineUsers?: any }) => {
   const { leads, loading } = useLeads()
   const { tasks } = useTasks()
   const [employees, setEmployees] = useState<any[]>([])
@@ -100,6 +100,7 @@ const AdminDashboard = () => {
   const stats = [
     { label: 'EQUITY CONVERSÃO', value: `R$ ${faturamentoTotal.toLocaleString()}`, icon: <DollarSign />, color: 'white' },
     { label: 'FLUXO MONITORADO', value: leads.length, icon: <Users />, color: 'white' },
+    { label: 'AGENDAMENTOS GLOBAIS', value: leads.filter(l => l.status === 'agendamento').length, icon: <CalendarIcon />, color: 'white' },
     { label: 'QUADRO ELITE', value: employees.length, icon: <User />, color: 'white' },
     { label: 'EXECUÇÃO OPERACIONAL', value: `${completedTasks} / ${tasks.length}`, icon: <CheckCircle2 />, color: 'white' }
   ]
@@ -109,7 +110,36 @@ const AdminDashboard = () => {
   return (
     <div className="space-y-16 animate-fade-in-up uppercase">
        <div className="flex items-center justify-between"><div><h2 className="text-8xl font-black tracking-tighter mb-4 text-white italic">CENTRAL CEO</h2><p className="text-[11px] text-zinc-600 uppercase tracking-[0.6em] font-light">VISÃO ANALÍTICA E ESTRATÉGICA DO ESTÚDIO.</p></div></div>
-       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+       
+       {/* RADAR DE OPERAÇÃO - NEW MONITORING SECTION */}
+       <div className="bg-[#1C1B16] border border-[#2A2922] p-12 shadow-2xl space-y-10">
+          <div className="flex items-center gap-4 border-b border-[#2A2922] pb-6"><Globe size={18} className="text-white" /><h3 className="text-[10px] font-black text-zinc-700 tracking-widest uppercase">RADAR DE OPERAÇÃO (STATUS DO TIME EM TEMPO REAL)</h3></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+             {employees.map(emp => {
+                const isOnline = !!onlineUsers[emp.id];
+                const presenceData = isOnline ? onlineUsers[emp.id][0] : null;
+                return (
+                   <div key={emp.id} className={`p-8 border ${isOnline ? 'border-white bg-white/5' : 'border-[#2A2922] opacity-50'} transition-all flex items-center gap-6 group`}>
+                      <div className="relative">
+                         <div className={`w-14 h-14 ${isOnline ? 'bg-white text-black' : 'bg-black text-zinc-800'} border border-[#2A2922] flex items-center justify-center font-black italic text-xl group-hover:scale-110 transition-transform tracking-tighter`}>{emp.full_name?.[0]}</div>
+                         {isOnline && <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-[#1C1B16]"></div>}
+                      </div>
+                      <div className="flex-1 truncate">
+                         <p className={`text-lg font-black ${isOnline ? 'text-white' : 'text-zinc-700'} italic truncate leading-none mb-1`}>{emp.full_name}</p>
+                         <p className="text-[8px] font-black text-zinc-600 tracking-[0.2em] mb-3">{emp.role?.toUpperCase() || 'OFFLINE'}</p>
+                         {isOnline ? (
+                            <div className="flex items-center gap-2"><Sparkles size={8} className="text-white animate-pulse" /><p className="text-[9px] font-black text-white italic truncate">NAVEGANDO: {presenceData?.current_page || 'PORTAL'}</p></div>
+                         ) : (
+                            <p className="text-[9px] font-black text-zinc-800 italic">DESCONECTADO DA HQ</p>
+                         )}
+                      </div>
+                   </div>
+                )
+             })}
+          </div>
+       </div>
+
+       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {stats.map((stat, i) => (
              <div key={i} className="bg-[#1C1B16] border border-[#2A2922] p-10 flex flex-col gap-10 group hover:bg-[#2A2922] transition-all shadow-2xl relative overflow-hidden">
                 <div className="flex justify-between items-center"><span className="p-4 bg-white text-black group-hover:scale-110 transition-all shadow-inner">{stat.icon}</span><p className="text-[10px] font-black tracking-[0.3em] text-zinc-700">HQ DATA</p></div>
@@ -254,12 +284,18 @@ const Tasks = ({ profile }: { profile: any }) => {
 const DashboardUnified = ({ profile }: { profile: any }) => {
   const { leads, loading } = useLeads()
   const { tasks } = useTasks(profile?.id)
-  const stats = [{ label: 'PIPELINE ATIVO', value: leads.length, icon: <Users size={18} /> }, { label: 'SUAS TASKS', value: tasks.filter(t => t.status === 'pending').length, icon: <ListTodo size={18} /> }, { label: 'EQUITY ESTIMADO', value: `R$ ${leads.reduce((acc, curr) => acc + (Number(curr.faturamento_estimado) || 0), 0).toLocaleString()}`, icon: <DollarSign size={18} /> }, { label: 'OPORTUNIDADES ELITE', value: leads.filter(l => (l.ai_score || 0) > 80).length, icon: <Sparkles size={18} /> }]
+  const stats = [
+    { label: 'PIPELINE ATIVO', value: leads.length, icon: <Users size={18} /> },
+    { label: 'SUAS TASKS', value: tasks.filter(t => t.status === 'pending').length, icon: <ListTodo size={18} /> },
+    { label: 'EQUITY ESTIMADO', value: `R$ ${leads.reduce((acc, curr) => acc + (Number(curr.faturamento_estimado) || 0), 0).toLocaleString()}`, icon: <DollarSign size={18} /> },
+    { label: 'AGENDAMENTOS REALIZADOS', value: leads.filter(l => l.owner_id === profile?.id && l.status === 'agendamento').length, icon: <CalendarIcon size={18} /> },
+    { label: 'OPORTUNIDADES ELITE', value: leads.filter(l => (l.ai_score || 0) > 80).length, icon: <Sparkles size={18} /> }
+  ]
   if (loading) return <div className="text-zinc-900 flex items-center justify-center min-h-[50vh] font-black uppercase animate-pulse text-[12px] tracking-[1em]">SINCRONIZANDO PORTAL...</div>
   return (
     <div className="space-y-16 animate-fade-in-up uppercase">
       <div className="flex items-center justify-between"><h2 className="text-8xl font-black tracking-tighter mb-2 text-white italic">PORTAL STUDIO</h2></div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
         {stats.map((stat, i) => (<div key={i} className="bg-[#1C1B16] border border-[#2A2922] p-10 flex flex-col gap-8 group hover:bg-[#2A2922] transition-all shadow-2xl relative overflow-hidden"><div className="flex items-center justify-between"><span className="p-4 bg-white text-black group-hover:scale-110 transition-all shadow-inner">{stat.icon}</span></div><div><p className="text-[10px] font-bold text-zinc-600 tracking-[0.2em] mb-2">{stat.label}</p><h3 className="text-4xl font-black text-white italic tracking-tighter">{stat.value}</h3></div></div>))}
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -430,16 +466,54 @@ const Settings = ({ profile, onUpdate }: { profile: any, onUpdate: (data: any) =
   )
 }
 
+const AuthenticatedApp = ({ session, profile, loading, onSignOut, handleUpdateProfile }: any) => {
+  const [onlineUsers, setOnlineUsers] = useState<any>({})
+  const location = useLocation()
+
+  useEffect(() => {
+    if (session && profile) {
+      const channel = supabase.channel('presence-studio', { config: { presence: { key: profile.id } } })
+      channel
+        .on('presence', { event: 'sync' }, () => { setOnlineUsers(channel.presenceState()) })
+        .subscribe(async (status) => {
+          if (status === 'SUBSCRIBED') {
+            await channel.track({ full_name: profile.full_name, current_page: location.pathname.toUpperCase() })
+          }
+        })
+      return () => { channel.unsubscribe() }
+    }
+  }, [session, profile, location.pathname])
+
+  return (
+    <AuthGuard session={session} profile={profile} loading={loading} onSignOut={onSignOut}>
+       <Routes>
+         <Route path="/" element={<DashboardUnified profile={profile} />} />
+         <Route path="/admin" element={<AdminDashboard onlineUsers={onlineUsers} />} />
+         <Route path="/admin/management" element={<AdminManagement />} />
+         <Route path="/leads" element={<Leads />} />
+         <Route path="/kanban" element={<Kanban />} />
+         <Route path="/follow-up" element={<FollowUp />} />
+         <Route path="/appointments" element={<Agenda />} />
+         <Route path="/tasks" element={<Tasks profile={profile} />} />
+         <Route path="/settings" element={<Settings profile={profile} onUpdate={handleUpdateProfile} />} />
+         <Route path="*" element={<DashboardUnified profile={profile} />} />
+       </Routes>
+    </AuthGuard>
+  )
+}
+
 // App Root
 const App = () => {
   const [session, setSession] = useState<any>(null)
   const [profile, setProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => { setSession(session); if (session) fetchProfile(session.user.id, session.user.email); setLoading(false); })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => { setSession(session); if (session) fetchProfile(session.user.id, session.user.email); else setProfile(null); })
     return () => subscription.unsubscribe()
   }, [])
+
   const fetchProfile = async (userId: string, email?: string) => { 
     const { data } = await supabase.from('profiles').select('*').eq('id', userId).single()
     if (data) {
@@ -452,14 +526,22 @@ const App = () => {
       }
     }
   }
+
   const handleUpdateProfile = async (updatedData: any) => { 
     const { error } = await supabase.from('profiles').update(updatedData).eq('id', profile.id)
     if (!error) fetchProfile(profile.id)
   }
+
   return (
-    <Router><AuthGuard session={session} profile={profile} loading={loading} onSignOut={() => supabase.auth.signOut()}>
-        <Routes><Route path="/" element={<DashboardUnified profile={profile} />} /><Route path="/admin" element={<AdminDashboard />} /><Route path="/admin/management" element={<AdminManagement />} /><Route path="/leads" element={<Leads />} /><Route path="/kanban" element={<Kanban />} /><Route path="/follow-up" element={<FollowUp />} /><Route path="/appointments" element={<Agenda />} /><Route path="/tasks" element={<Tasks profile={profile} />} /><Route path="/settings" element={<Settings profile={profile} onUpdate={handleUpdateProfile} />} /><Route path="*" element={<DashboardUnified profile={profile} />} /></Routes>
-    </AuthGuard></Router>
+    <Router>
+      <AuthenticatedApp 
+        session={session} 
+        profile={profile} 
+        loading={loading} 
+        onSignOut={() => supabase.auth.signOut()} 
+        handleUpdateProfile={handleUpdateProfile}
+      />
+    </Router>
   )
 }
 export default App
