@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { X, User, Globe, Phone, DollarSign, Calendar, Clock, Sparkles, UserCheck, Flame, Briefcase, Percent, ChevronRight, CheckCircle2 } from 'lucide-react'
+import { X, User, Globe, Phone, DollarSign, Calendar, Clock, Sparkles, UserCheck, Flame, Briefcase, Percent, ChevronRight, CheckCircle2, MessageSquare } from 'lucide-react'
 
 interface AddLeadModalProps {
   onClose: () => void
@@ -26,7 +26,8 @@ export const AddLeadModal = ({ onClose, onAdd, profile }: AddLeadModalProps) => 
     horario: '',
     status: 'novo_lead',
     temperature: 'frio',
-    product_type: products[2].name
+    product_type: products[2].name,
+    customer_pains: ''
   })
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -117,6 +118,17 @@ export const AddLeadModal = ({ onClose, onAdd, profile }: AddLeadModalProps) => 
             <div className="space-y-4">
                <label className="text-[11px] font-black text-white uppercase tracking-widest italic flex items-center gap-3"><Phone size={16} className="text-brand-purple" /> Linha Direta (Whatsapp)</label>
                <input type="text" required placeholder="+55 (00) 00000-0000" className="w-full bg-[#1E1E24] border border-[#363645] p-5 rounded-luxury text-white font-bold text-sm outline-none focus:border-brand-purple transition-all placeholder:text-zinc-800" value={formData.whatsapp} onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })} />
+            </div>
+
+            {/* CUSTOMER PAINS */}
+            <div className="space-y-4 md:col-span-2">
+               <label className="text-[11px] font-black text-white uppercase tracking-widest italic flex items-center gap-3"><MessageSquare size={16} className="text-brand-pink" /> Dores do Cliente</label>
+               <textarea 
+                 placeholder="DESCREVA AS DORES E NECESSIDADES DO CLIENTE..." 
+                 className="w-full bg-[#1E1E24] border border-[#363645] p-5 rounded-luxury text-white font-bold text-sm outline-none focus:border-brand-purple transition-all placeholder:text-zinc-800 min-h-[120px] resize-none uppercase" 
+                 value={formData.customer_pains} 
+                 onChange={(e) => setFormData({ ...formData, customer_pains: e.target.value })}
+               />
             </div>
 
             {/* COMMISSION CARD */}

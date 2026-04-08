@@ -18,6 +18,7 @@ export const analyzeLead = async (leadData: any): Promise<AIAnalysis> => {
     - Nome: ${leadData.name}
     - Faturamento Estimado: R$ ${leadData.faturamento_estimado}
     - Instagram: ${leadData.instagram}
+    - Dores do Cliente: ${leadData.customer_pains || 'Não informado'}
     
     CRITÉRIOS DE SCORE (0-100):
     - Faturamento > 10k: +40 pontos

@@ -23,6 +23,7 @@ export interface Lead {
   temperature?: 'frio' | 'morno' | 'quente'
   meeting_date?: string
   meeting_time?: string
+  customer_pains?: string
 }
 
 export const useLeads = () => {
